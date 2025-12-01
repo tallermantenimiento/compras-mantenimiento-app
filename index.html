@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Compras mantenimiento · Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="./logo_sklum.jpg">
+  <style>
+    :root{
+      --bg:#f3f4f6;
+      --card:#ffffff;
+      --border:#d1d5db;
+      --accent:#111827;
+      --accent-soft:#e5e7eb;
+      --text:#111827;
+      --muted:#6b7280;
+      --danger:#b91c1c;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
+    body{background:var(--bg);color:var(--text);}
+    header{display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid var(--border);background:#111827;color:#fff;}
+    header img{width:40px;height:40px;border-radius:10px;background:#fff;padding:4px;object-fit:contain;}
+    header .title{display:flex;flex-direction:column;}
+    header .title span:first-child{font-size:15px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;}
+    header .title span:last-child{font-size:12px;color:#9ca3af;}
+    main{padding:14px 18px 20px;max-width:1300px;margin:0 auto;display:flex;flex-direction:column;gap:14px;}
+    .panes{display:flex;flex-wrap:wrap;gap:14px;}
+    .panel{background:var(--card);border-radius:14px;border:1px solid var(--border);padding:12px 14px;box-shadow:0 8px 18px rgba(15,23,42,0.04);flex:1 1 380px;}
+    .panel h2{font-size:14px;font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;}
+    .badge{font-size:11px;padding:2px 8px;border-radius:999px;background:var(--accent-soft);color:var(--muted);}
+    .badge.alert{background:#fee2e2;color:#b91c1c;}
+    .row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;}
+    .field{display:flex;flex-direction:column;gap:2px;min-width:200px;}
+    label{font-size:12px;color:var(--muted);}
+    input[type="text"]{padding:6px 9px;border-radius:999px;border:1px solid var(--border);font-size:13px;}
+    button{cursor:pointer;}
+    .btn-main{padding:7px 14px;border-radius:999px;border:none;font-size:12px;background:var(--accent);color:#fff;}
+    .btn-main:active{transform:scale(.97);}
+    .btn-sm{font-size:11px;padding:3px 9px;border-radius:999px;border:1px solid var(--border);background:#fff;cursor:pointer;}
+    .btn-sm.primary{background:#111827;color:#fff;border-color:#111827;}
+    .btn-sm.danger{background:#fef2f2;color:#b91c1c;border-color:#fecaca;}
+    .btn-sm.copy{background:#f3f4ff;border-color:#c7d2fe;color:#111827;}
+    .btn-sm:active{transform:scale(.96);}
+    .hint{font-size:11px;color:var(--muted);margin-top:4px;}
+    table{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px;}
+    th,td{padding:6px 8px;border-bottom:1px solid var(--border);vertical-align:top;}
+    th{background:var(--accent-soft);text-align:left;font-size:11px;text-transform:uppercase;color:#374151;letter-spacing:.03em;}
+    tbody tr:nth-child(odd){background:#f9fafb;}
+    .code{font-family:monospace;font-size:11px;background:#111827;color:#e5e7eb;padding:2px 6px;border-radius:999px;white-space:nowrap;}
+    .pill-sector{font-size:11px;padding:4px 10px;border-radius:999px;background:#111827;color:#fff;display:inline-flex;align-items:center;gap:6px;}
+    .pill-sector span.dot{width:7px;height:7px;border-radius:999px;background:#22c55e;}
+    .sector-name-pill{display:inline-flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 16px;border-radius:999px;background:#111827;color:#fff;font-size:12px;min-width:220px;}
+    .sector-alert-pill{font-size:10px;padding:2px 8px;border-radius:999px;background:#b91c1c;color:#fff;white-space:nowrap;}
+    .estado-pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--border);}
+    .estado-pill span.dot{width:6px;height:6px;border-radius:999px;background:currentColor;}
+    .estado-pendiente{background:#fef3c7;border-color:#fbbf24;color:#92400e;}
+    .estado-pedido{background:#e5e7eb;border-color:#cbd5e1;color:#374151;}
+    .estado-recibido{background:#dbeafe;border-color:#60a5fa;color:#1d4ed8;}
+    .estado-entregado{background:#dcfce7;border-color:#22c55e;color:#166534;}
+    .acciones-pedido{display:flex;gap:4px;flex-wrap:wrap;}
+    .acciones-pedido .estado-btn{min-width:78px;}
+    .acciones-pedido .estado-btn.activo{background:#111827;color:#fff;}
+    footer{padding:6px 18px 16px;font-size:11px;color:#9ca3af;text-align:center;}
+    .entregados-box{margin-top:10px;border-top:1px dashed var(--border);padding-top:6px;}
+    .entregados-header{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#374151;cursor:pointer;}
+    .entregados-header span.label{font-weight:600;}
+    .entregados-header span.chevron{font-size:14px;}
+    .entregados-body{margin-top:6px;display:none;}
+    .entregados-body table{margin-top:0;}
+    @media(max-width:860px){
+      main{padding:10px 12px;}
+      .panes{flex-direction:column;}
+    }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+</head>
+<body>
+<header>
+  <img src="./logo_sklum.jpg" alt="Sklum">
+  <div class="title">
+    <span>Compras mantenimiento</span>
+    <span>Panel de control · Responsable de compras</span>
+  </div>
+</header>
+
+<main>
+  <div class="panes">
+    <!-- Gestión de sectores -->
+    <section class="panel">
+      <h2>
+        Gestión de sectores
+        <span class="badge" id="badgeSectores">0 sectores</span>
+      </h2>
+      <div class="row">
+        <div class="field" style="flex:2;">
+          <label for="nuevoSectorNombre">Nombre de sector</label>
+          <input id="nuevoSectorNombre" type="text" placeholder="Ej: ELECTRICIDAD, CORTE, MONTAJE…">
+        </div>
+        <div class="field" style="flex:0 0 auto;">
+          <button class="btn-main" id="btnCrearSector">Crear sector</button>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Sector</th>
+            <th>Código</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbodySectores"></tbody>
+      </table>
+    </section>
+
+    <!-- Pedidos del sector activo -->
+    <section class="panel">
+      <h2>
+        Pedidos del sector activo
+        <span class="badge" id="badgeResumen">0</span>
+      </h2>
+      <div class="row" style="margin-bottom:8px;">
+        <div class="field" style="flex:1;">
+          <label>Sector activo</label>
+          <div id="pillSectorActivo" class="pill-sector">
+            <span class="dot"></span>
+            <span>Sin sector seleccionado</span>
+          </div>
+          <div class="hint" id="hintSector">Elige un sector en la tabla de la izquierda.</div>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Referencia</th>
+            <th>Material solicitado</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyPedidosActivos"></tbody>
+      </table>
+
+      <!-- Bloque de pedidos entregados (desplegable) -->
+      <div class="entregados-box">
+        <div class="entregados-header" id="headerEntregados">
+          <span class="label">Pedidos entregados</span>
+          <span>
+            <span class="badge" id="badgeEntregados">0</span>
+            <span class="chevron" id="chevronEntregados">▼</span>
+          </span>
+        </div>
+        <div class="entregados-body" id="bodyEntregados">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Referencia</th>
+                <th>Material</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyPedidosEntregados"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Crear pedido desde el panel -->
+      <div style="margin-top:10px;border-top:1px dashed var(--border);padding-top:8px;">
+        <h3 style="font-size:13px;margin-bottom:4px;">Crear pedido desde el panel</h3>
+        <div class="row" style="margin-top:4px;">
+          <div class="field" style="flex:1;">
+            <label>Referencia</label>
+            <input id="pcRef" type="text" placeholder="Nº pedido, proveedor…">
+          </div>
+          <div class="field" style="flex:2;">
+            <label>Material solicitado</label>
+            <input id="pcMat" type="text" placeholder="Descripción del material">
+          </div>
+          <div class="field" style="flex:0 0 auto;">
+            <button class="btn-main" id="btnPcAdd">Añadir</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  Los responsables usan la URL <strong>app_responsable.html?sector=CODIGO-SECTOR</strong>. El código se ve en la tabla de sectores.
+</footer>
+
+<script>
+  function slug(str){
+    return (str || '').toString().trim().toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+  }
+  function prettySector(id){
+    if(!id) return 'SIN SECTOR';
+    return id.replace(/-/g,' ').toUpperCase();
+  }
+  function normalizarEstado(raw){
+    if(!raw || raw === 'pendiente') return 'pendiente';
+    if(raw === 'pedido') return 'pedido';
+    if(raw === 'recibido') return 'recibido';
+    if(raw === 'entregado') return 'entregado';
+    return raw;
+  }
+  function estadoClase(estado){
+    if(estado === 'pendiente') return 'estado-pendiente';
+    if(estado === 'pedido') return 'estado-pedido';
+    if(estado === 'recibido') return 'estado-recibido';
+    if(estado === 'entregado') return 'estado-entregado';
+    return 'estado-pendiente';
+  }
+  function estadoTexto(estado){
+    if(estado === 'pendiente') return 'Pendiente';
+    if(estado === 'pedido') return 'Pedido';
+    if(estado === 'recibido') return 'Recibido';
+    if(estado === 'entregado') return 'Entregado';
+    return 'Pendiente';
+  }
+
+  const nuevoSectorNombre = document.getElementById('nuevoSectorNombre');
+  const btnCrearSector = document.getElementById('btnCrearSector');
+  const tbodySectores = document.getElementById('tbodySectores');
+  const badgeSectores = document.getElementById('badgeSectores');
+
+  const pillSectorActivo = document.getElementById('pillSectorActivo');
+  const hintSector = document.getElementById('hintSector');
+  const tbodyActivos = document.getElementById('tbodyPedidosActivos');
+  const tbodyEntregados = document.getElementById('tbodyPedidosEntregados');
+  const badgeResumen = document.getElementById('badgeResumen');
+  const badgeEntregados = document.getElementById('badgeEntregados');
+  const headerEntregados = document.getElementById('headerEntregados');
+  const bodyEntregados = document.getElementById('bodyEntregados');
+  const chevronEntregados = document.getElementById('chevronEntregados');
+
+  const pcRef = document.getElementById('pcRef');
+  const pcMat = document.getElementById('pcMat');
+  const btnPcAdd = document.getElementById('btnPcAdd');
+
+  let sectorActual = null;
+  let unsubSectores = null;
+  let unsubPedidosSector = null;
+  let unsubPedidosGlobal = null;
+  let sectoresCache = [];
+  let pendientesPorSector = {};
+
+  function suscribirSectores(){
+    unsubSectores && unsubSectores();
+    unsubSectores = db.collection('sectores')
+      .orderBy('nombre')
+      .onSnapshot(function(snapshot){
+        const sectores = [];
+        snapshot.forEach(function(doc){
+          const d = doc.data() || {};
+          sectores.push({ id: doc.id, nombre: d.nombre || doc.id, slug: d.slug || doc.id });
+        });
+        sectoresCache = sectores;
+        renderSectores();
+      }, function(err){
+        console.warn('Error sectores', err);
+      });
+  }
+
+  function suscribirPedidosGlobal(){
+    unsubPedidosGlobal && unsubPedidosGlobal();
+    unsubPedidosGlobal = db.collection('pedidos')
+      .onSnapshot(function(snapshot){
+        const counts = {};
+        snapshot.forEach(function(doc){
+          const d = doc.data() || {};
+          const est = normalizarEstado(d.estado);
+          const sec = d.sector || '';
+          // Contamos todo lo que no está ENTREGADO como pendiente para la alerta
+          if(est !== 'entregado'){
+            counts[sec] = (counts[sec] || 0) + 1;
+          }
+        });
+        pendientesPorSector = counts;
+        renderSectores();
+      }, function(err){
+        console.warn('Error pedidos global', err);
+      });
+  }
+
+  function renderSectores(){
+    tbodySectores.innerHTML = '';
+    const sectores = sectoresCache || [];
+    badgeSectores.textContent = sectores.length + (sectores.length === 1 ? ' sector' : ' sectores');
+
+    let origin = window.location.origin || '';
+    let path = window.location.pathname || '';
+    if(path.endsWith('index.html')) path = path.slice(0, -'index.html'.length);
+    let base = origin + path;
+    if(base && !base.endsWith('/')) base += '/';
+    const appBase = (base || '') + 'app_responsable.html?sector=';
+
+    if(!sectores.length){
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = 3;
+      td.textContent = 'Todavía no hay sectores creados.';
+      td.style.fontSize = '11px';
+      td.style.color = '#6b7280';
+      tr.appendChild(td);
+      tbodySectores.appendChild(tr);
+      return;
+    }
+
+    sectores.forEach(function(s){
+      const tr = document.createElement('tr');
+
+      // Sector
+      const tdNombre = document.createElement('td');
+      const pill = document.createElement('div');
+      pill.className = 'sector-name-pill';
+      pill.dataset.slug = s.slug;
+      const spanNombre = document.createElement('span');
+      spanNombre.textContent = s.nombre;
+      pill.appendChild(spanNombre);
+      const alertCount = pendientesPorSector[s.slug] || 0;
+      if(alertCount > 0){
+        const alert = document.createElement('span');
+        alert.className = 'sector-alert-pill';
+        alert.textContent = alertCount + (alertCount === 1 ? ' pendiente' : ' pendientes');
+        pill.appendChild(alert);
+      }
+      tdNombre.appendChild(pill);
+      tr.appendChild(tdNombre);
+
+      // Código
+      const tdSlug = document.createElement('td');
+      const spanCode = document.createElement('span');
+      spanCode.className = 'code';
+      spanCode.textContent = s.slug;
+      tdSlug.appendChild(spanCode);
+      tr.appendChild(tdSlug);
+
+      // Acciones
+      const tdAcc = document.createElement('td');
+
+      const bCopy = document.createElement('button');
+      bCopy.className = 'btn-sm copy';
+      bCopy.textContent = 'Copiar enlace responsable';
+      bCopy.dataset.link = appBase + encodeURIComponent(s.slug);
+      tdAcc.appendChild(bCopy);
+
+      const bDel = document.createElement('button');
+      bDel.className = 'btn-sm danger';
+      bDel.textContent = 'Borrar';
+      bDel.dataset.slug = s.slug;
+      tdAcc.appendChild(bDel);
+
+      tr.appendChild(tdAcc);
+      tbodySectores.appendChild(tr);
+    });
+  }
+
+  function aplicarSector(slugVal){
+    if(!slugVal){
+      sectorActual = null;
+      pillSectorActivo.querySelector('span:nth-child(2)').textContent = 'Sin sector seleccionado';
+      hintSector.textContent = 'Elige un sector en la tabla de la izquierda.';
+      tbodyActivos.innerHTML = '';
+      tbodyEntregados.innerHTML = '';
+      badgeResumen.textContent = '0';
+      badgeEntregados.textContent = '0';
+      return;
+    }
+    sectorActual = slugVal;
+    const texto = prettySector(slugVal);
+    pillSectorActivo.querySelector('span:nth-child(2)').textContent = texto;
+    hintSector.textContent = '';
+    suscribirPedidosSector();
+  }
+
+  function suscribirPedidosSector(){
+    unsubPedidosSector && unsubPedidosSector();
+    tbodyActivos.innerHTML = '';
+    tbodyEntregados.innerHTML = '';
+    badgeResumen.textContent = '0';
+    badgeEntregados.textContent = '0';
+    if(!sectorActual) return;
+
+    unsubPedidosSector = db.collection('pedidos')
+      .where('sector','==',sectorActual)
+      .onSnapshot(function(snapshot){
+        const pedidos = [];
+        snapshot.forEach(function(doc){
+          const d = doc.data() || {};
+          const est = normalizarEstado(d.estado);
+          pedidos.push({
+            id: doc.id,
+            fechaPedido: d.fechaPedido || '',
+            fechaRecibido: d.fechaRecibido || '',
+            ref: d.referencia || '',
+            mat: d.material || '',
+            estado: est
+          });
+        });
+        renderPedidos(pedidos);
+      }, function(err){
+        console.warn('Error pedidos', err);
+        hintSector.textContent = 'Error al obtener pedidos.';
+      });
+  }
+
+  function renderPedidos(pedidos){
+    tbodyActivos.innerHTML = '';
+    tbodyEntregados.innerHTML = '';
+
+    const activos = [];
+    const entregados = [];
+
+    pedidos.forEach(function(p){
+      if(p.estado === 'entregado') entregados.push(p);
+      else activos.push(p);
+    });
+
+    const total = pedidos.length;
+    badgeResumen.textContent = String(total);
+    badgeEntregados.textContent = String(entregados.length);
+
+    // Activos (pendiente / pedido / recibido)
+    if(!activos.length){
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = 5;
+      td.textContent = 'Sin pedidos para este sector.';
+      td.style.fontSize = '11px';
+      td.style.color = '#6b7280';
+      tr.appendChild(td);
+      tbodyActivos.appendChild(tr);
+    }else{
+      activos.forEach(function(p){
+        const tr = document.createElement('tr');
+        const clase = estadoClase(p.estado);
+        const texto = estadoTexto(p.estado);
+        const fechaMostrar = p.fechaPedido || '';
+        tr.innerHTML = `
+          <td>${fechaMostrar}</td>
+          <td>${p.ref || ''}</td>
+          <td>${p.mat || ''}</td>
+          <td>
+            <span class="estado-pill ${clase}">
+              <span class="dot"></span>${texto}
+            </span>
+          </td>
+          <td class="acciones-pedido">
+            <button class="btn-sm estado-btn" data-accion="setEstado" data-estado="pendiente" data-id="${p.id}">Pendiente</button>
+            <button class="btn-sm estado-btn" data-accion="setEstado" data-estado="pedido" data-id="${p.id}">Pedido</button>
+            <button class="btn-sm estado-btn" data-accion="setEstado" data-estado="recibido" data-id="${p.id}">Recibido</button>
+            <button class="btn-sm estado-btn" data-accion="setEstado" data-estado="entregado" data-id="${p.id}">Entregado</button>
+          </td>
+        `;
+        const btns = tr.querySelectorAll('.estado-btn');
+        btns.forEach(function(b){
+          if(b.dataset.estado === p.estado) b.classList.add('activo');
+        });
+        tbodyActivos.appendChild(tr);
+      });
+    }
+
+    // Entregados (en desplegable)
+    if(!entregados.length){
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = 5;
+      td.textContent = 'Sin pedidos entregados.';
+      td.style.fontSize = '11px';
+      td.style.color = '#6b7280';
+      tr.appendChild(td);
+      tbodyEntregados.appendChild(tr);
+    }else{
+      entregados.forEach(function(p){
+        const tr = document.createElement('tr');
+        const fechaMostrar = p.fechaRecibido || p.fechaPedido || '';
+        tr.innerHTML = `
+          <td>${fechaMostrar}</td>
+          <td>${p.ref || ''}</td>
+          <td>${p.mat || ''}</td>
+          <td>
+            <span class="estado-pill estado-entregado">
+              <span class="dot"></span>Entregado
+            </span>
+          </td>
+          <td class="acciones-pedido">
+            <button class="btn-sm estado-btn" data-accion="setEstado" data-estado="pendiente" data-id="${p.id}">Volver a pendiente</button>
+            <button class="btn-sm danger" data-accion="borrar" data-id="${p.id}">Borrar</button>
+          </td>
+        `;
+        tbodyEntregados.appendChild(tr);
+      });
+    }
+  }
+
+  // Eventos sectores
+  btnCrearSector.addEventListener('click', function(){
+    const nombre = (nuevoSectorNombre.value || '').trim();
+    if(!nombre){ alert('Escribe un nombre para el sector.'); return; }
+    const s = slug(nombre);
+    if(!s){ alert('El nombre no es válido.'); return; }
+
+    db.collection('sectores').doc(s).set({
+      nombre: nombre,
+      slug: s,
+      creadoEn: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function(){
+      nuevoSectorNombre.value = '';
+    }).catch(function(err){
+      console.warn('Error creando sector', err);
+      alert('No se ha podido crear el sector.');
+    });
+  });
+
+  tbodySectores.addEventListener('click', function(e){
+    const pill = e.target.closest('.sector-name-pill');
+    if(pill && pill.dataset && pill.dataset.slug){
+      aplicarSector(pill.dataset.slug);
+      return;
+    }
+
+    const btn = e.target.closest('button');
+    if(!btn) return;
+
+    if(btn.classList.contains('copy')){
+      const link = btn.dataset.link;
+      if(!link) return;
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(link).then(function(){
+          btn.textContent = 'Copiado';
+          setTimeout(function(){ btn.textContent = 'Copiar enlace responsable'; }, 1500);
+        }).catch(function(){
+          alert('No se pudo copiar el enlace.');
+        });
+      }else{
+        alert('No se pudo copiar automáticamente. Copia el enlace de la barra del navegador.');
+      }
+      return;
+    }
+
+    const slugVal = btn.dataset.slug;
+    if(btn.textContent === 'Borrar'){
+      if(!confirm('¿Borrar este sector? Los pedidos existentes no se borran.')) return;
+      db.collection('sectores').doc(slugVal).delete().catch(function(err){
+        console.warn('Error borrando sector', err);
+        alert('No se ha podido borrar el sector.');
+      });
+    }
+  });
+
+  // Eventos pedidos activos y entregados
+  tbodyActivos.addEventListener('click', function(e){
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    const accion = btn.dataset.accion;
+    const id = btn.dataset.id;
+    if(!accion || !id) return;
+    if(accion === 'setEstado'){
+      const estado = btn.dataset.estado;
+      const data = { estado: estado };
+      if(estado === 'entregado'){
+        data.fechaRecibido = new Date().toLocaleString('es-ES');
+      }
+      db.collection('pedidos').doc(id).update(data).catch(function(err){
+        console.warn('Error actualizando estado', err);
+        alert('No se pudo actualizar el pedido.');
+      });
+    }
+  });
+
+  tbodyEntregados.addEventListener('click', function(e){
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    const accion = btn.dataset.accion;
+    const id = btn.dataset.id;
+    if(!accion || !id) return;
+    if(accion === 'setEstado'){
+      const estado = btn.dataset.estado;
+      const data = { estado: estado };
+      if(estado === 'entregado'){
+        data.fechaRecibido = new Date().toLocaleString('es-ES');
+      }
+      db.collection('pedidos').doc(id).update(data).catch(function(err){
+        console.warn('Error actualizando estado', err);
+        alert('No se pudo actualizar el pedido.');
+      });
+    }else if(accion === 'borrar'){
+      if(!confirm('¿Borrar definitivamente este pedido?')) return;
+      db.collection('pedidos').doc(id).delete().catch(function(err){
+        console.warn('Error borrando pedido', err);
+        alert('No se ha podido borrar el pedido.');
+      });
+    }
+  });
+
+  // Alta de pedido desde el panel
+  btnPcAdd.addEventListener('click', function(){
+    if(!sectorActual){
+      alert('Primero selecciona un sector.'); return;
+    }
+    const ref = (pcRef.value || '').trim();
+    const mat = (pcMat.value || '').trim();
+    if(!ref && !mat){
+      alert('Escribe al menos referencia o material.'); return;
+    }
+    const fecha = new Date().toLocaleString('es-ES');
+    db.collection('pedidos').add({
+      sector: sectorActual,
+      fechaPedido: fecha,
+      referencia: ref,
+      material: mat,
+      estado: 'pendiente',
+      creadoEn: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function(){
+      pcRef.value = '';
+      pcMat.value = '';
+    }).catch(function(err){
+      console.warn('Error creando pedido PC', err);
+      alert('No se ha podido crear el pedido.');
+    });
+  });
+
+  // Desplegable entregados
+  headerEntregados.addEventListener('click', function(){
+    if(bodyEntregados.style.display === 'none' || !bodyEntregados.style.display){
+      bodyEntregados.style.display = 'block';
+      chevronEntregados.textContent = '▲';
+    }else{
+      bodyEntregados.style.display = 'none';
+      chevronEntregados.textContent = '▼';
+    }
+  });
+
+  suscribirSectores();
+  suscribirPedidosGlobal();
+</script>
+</body>
+</html>

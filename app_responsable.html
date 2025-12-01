@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Compras mantenimiento · Responsable</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="./logo_sklum.jpg">
+  <style>
+    :root{
+      --bg:#111827;
+      --card:#ffffff;
+      --border:#e5e7eb;
+      --accent:#111827;
+      --accent-soft:#f3f4f6;
+      --text:#111827;
+      --muted:#6b7280;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
+    body{background:var(--bg);color:var(--text);}
+    header{padding:10px 14px 8px;display:flex;align-items:center;gap:10px;background:var(--bg);color:#fff;}
+    header img{width:34px;height:34px;border-radius:10px;background:#fff;padding:4px;object-fit:contain;}
+    header .title{display:flex;flex-direction:column;}
+    header .title span:first-child{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;}
+    header .title span:last-child{font-size:11px;color:#9ca3af;}
+    main{padding:10px 10px 16px;max-width:520px;margin:0 auto;}
+    .pill-sector{font-size:11px;padding:4px 10px;border-radius:999px;background:#111827;color:#fff;display:inline-flex;align-items:center;gap:6px;}
+    .pill-sector span.dot{width:7px;height:7px;border-radius:999px;background:#22c55e;}
+    .hint{font-size:11px;color:#e5e7eb;margin-top:4px;margin-bottom:6px;}
+    .card{background:var(--card);border-radius:16px;border:1px solid var(--border);padding:10px 11px;margin-top:8px;box-shadow:0 12px 26px rgba(15,23,42,0.45);}
+    .section-title{font-size:12px;font-weight:600;color:#111827;margin-bottom:4px;}
+    .badge{font-size:11px;padding:2px 8px;border-radius:999px;background:var(--accent-soft);color:var(--muted);}
+    .new-form{display:flex;flex-direction:column;gap:6px;margin-top:6px;}
+    .input-line,.input-area{width:100%;border-radius:12px;border:1px solid var(--border);padding:7px 9px;font-size:13px;background:#f9fafb;}
+    .input-area{resize:vertical;min-height:52px;}
+    .btn-add{align-self:flex-end;margin-top:2px;border-radius:999px;border:none;padding:7px 16px;font-size:12px;background:#111827;color:#fff;cursor:pointer;}
+    .btn-add:active{transform:scale(.97);}
+    .list-block{margin-top:10px;}
+    .list-title{font-size:12px;font-weight:600;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;color:#111827;}
+    .list-empty{font-size:11px;color:#9ca3af;margin-top:2px;}
+    .pedido-card{border-radius:14px;border:1px solid var(--border);padding:7px 8px;margin-top:6px;background:#f9fafb;}
+    .pedido-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+    .pedido-ref{font-size:12px;font-weight:600;}
+    .pedido-fecha{font-size:11px;color:#6b7280;}
+    .pedido-mat{font-size:12px;color:#111827;margin-bottom:4px;}
+    .pedido-footer{display:flex;justify-content:space-between;align-items:center;}
+    .estado-pill{font-size:11px;padding:2px 9px;border-radius:999px;border:1px solid var(--border);display:inline-flex;align-items:center;gap:4px;}
+    .estado-pill span.dot{width:6px;height:6px;border-radius:999px;background:currentColor;}
+    .estado-pendiente{background:#fef3c7;border-color:#fbbf24;color:#92400e;}
+    .estado-pedido{background:#e5e7eb;border-color:#cbd5e1;color:#374151;}
+    .estado-recibido{background:#dcfce7;border-color:#22c55e;color:#166534;}
+    .btn-mini{font-size:11px;padding:4px 10px;border-radius:999px;border:none;cursor:pointer;}
+    .btn-mini.ok{background:#16a34a;color:#fff;}
+    .btn-mini.back{background:#e5e7eb;color:#111827;}
+    .btn-mini.danger{background:#fee2e2;color:#b91c1c;}
+    .btn-mini:active{transform:scale(.96);}
+    footer{padding:8px 10px 12px;font-size:10px;color:#9ca3af;text-align:center;}
+    .toggle-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+</head>
+<body>
+<header>
+  <img src="./logo_sklum.jpg" alt="Sklum">
+  <div class="title">
+    <span>Compras responsable</span>
+    <span>Realiza pedidos desde tu móvil</span>
+  </div>
+</header>
+
+<main>
+  <div class="pill-sector" id="pillSector">
+    <span class="dot"></span>
+    <span>Sector: …</span>
+  </div>
+  <div class="hint" id="hint"></div>
+
+  <div class="card">
+    <div class="section-title">Nuevo pedido</div>
+    <div class="new-form">
+      <input id="inpRef" type="text" class="input-line" placeholder="Referencia (pedido, proveedor…)">
+      <textarea id="inpMat" class="input-area" rows="2" placeholder="Material solicitado"></textarea>
+      <button class="btn-add" id="btnAdd">Añadir pedido</button>
+    </div>
+  </div>
+
+  <div class="card list-block">
+    <div class="list-title">
+      <span>Pendientes</span>
+      <span class="badge" id="badgePend">0</span>
+    </div>
+    <div id="listaPend"></div>
+
+    <div class="list-title toggle-header" id="headerRecibidos" style="margin-top:10px;">
+      <span>Recibidos</span>
+      <span>
+        <span class="badge" id="badgeRec">0</span>
+        <span id="chevronRec" style="font-size:14px;">▼</span>
+      </span>
+    </div>
+    <div id="listaRec"></div>
+  </div>
+</main>
+
+<footer>
+  Este enlace es personal de tu sector. No lo compartas con otros sectores.
+</footer>
+
+<script>
+  function slug(str){
+    return (str || '').toString().trim().toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+  }
+  function prettySector(id){
+    if(!id) return 'SIN SECTOR';
+    return id.replace(/-/g,' ').toUpperCase();
+  }
+  function normalizarEstado(raw){
+    if(!raw || raw === 'pendiente') return 'pendiente';
+    if(raw === 'pedido') return 'pedido';
+    if(raw === 'recibido') return 'recibido';
+    if(raw === 'entregado') return 'entregado';
+    return raw;
+  }
+  function estadoClase(estado){
+    if(estado === 'pendiente') return 'estado-pendiente';
+    if(estado === 'pedido') return 'estado-pedido';
+    if(estado === 'recibido' || estado === 'entregado') return 'estado-recibido';
+    return 'estado-pendiente';
+  }
+  function estadoTexto(estado){
+    if(estado === 'pendiente') return 'Pendiente';
+    if(estado === 'pedido') return 'Pedido';
+    if(estado === 'recibido') return 'Recibido';
+    if(estado === 'entregado') return 'Entregado';
+    return 'Pendiente';
+  }
+
+  var params = new URLSearchParams(window.location.search);
+  var sectorSlug = slug((params.get('sector') || '').trim());
+
+  var pillSector = document.getElementById('pillSector');
+  var hint = document.getElementById('hint');
+  var inpRef = document.getElementById('inpRef');
+  var inpMat = document.getElementById('inpMat');
+  var btnAdd = document.getElementById('btnAdd');
+  var listaPend = document.getElementById('listaPend');
+  var listaRec = document.getElementById('listaRec');
+  var badgePend = document.getElementById('badgePend');
+  var badgeRec = document.getElementById('badgeRec');
+  var headerRecibidos = document.getElementById('headerRecibidos');
+  var chevronRec = document.getElementById('chevronRec');
+
+  var unsub = null;
+  var recibidosVisible = false;
+
+  if(!sectorSlug){
+    pillSector.querySelector('span:nth-child(2)').textContent = 'Sector: SIN DEFINIR';
+    hint.textContent = 'Falta el parámetro ?sector= en el enlace.';
+  }else{
+    pillSector.querySelector('span:nth-child(2)').textContent = 'Sector: ' + prettySector(sectorSlug);
+    hint.textContent = 'Aquí puedes anotar lo que necesitas; se ve en el panel del PC.';
+    suscribirPedidos();
+  }
+
+  function suscribirPedidos(){
+    if(!sectorSlug) return;
+    unsub && unsub();
+    unsub = db.collection('pedidos')
+      .where('sector','==',sectorSlug)
+      .onSnapshot(function(snapshot){
+        var pend = [], rec = [];
+        snapshot.forEach(function(doc){
+          var d = doc.data() || {};
+          if(d.ocultoEnApp){ return; }
+          var est = normalizarEstado(d.estado);
+          var p = {
+            id: doc.id,
+            fechaPedido: d.fechaPedido || '',
+            fechaRecibido: d.fechaRecibido || '',
+            ref: d.referencia || '',
+            mat: d.material || '',
+            estado: est
+          };
+          if(p.estado === 'entregado'){
+            rec.push(p);
+          }else{
+            pend.push(p);
+          }
+        });
+        renderListas(pend, rec);
+      }, function(err){
+        console.warn('Error onSnapshot responsable', err);
+        hint.textContent = 'Error al escuchar pedidos. Revisa la conexión.';
+      });
+  }
+
+  function cardPedido(p, esPend){
+    var card = document.createElement('div');
+    card.className = 'pedido-card';
+    var clase = estadoClase(p.estado);
+    var texto = estadoTexto(p.estado);
+    card.innerHTML = '\
+      <div class="pedido-header">\
+        <div class="pedido-ref">'+(p.ref || '(sin referencia)')+'</div>\
+        <div class="pedido-fecha">'+(esPend ? (p.fechaPedido || '') : (p.fechaRecibido || p.fechaPedido || ''))+'</div>\
+      </div>\
+      <div class="pedido-mat">'+(p.mat || '')+'</div>\
+      <div class="pedido-footer">\
+        <span class="estado-pill '+clase+'">\
+          <span class="dot"></span>'+texto+'\
+        </span>\
+        <div>\
+          '+(esPend
+            ? '<button class="btn-mini ok" data-accion="marcarRecibido" data-id="'+p.id+'">Recibido</button>'
+            : '<button class="btn-mini back" data-accion="volverPendiente" data-id="'+p.id+'">Volver</button> <button class="btn-mini danger" data-accion="borrar" data-id="'+p.id+'">Borrar</button>'
+          )+'\
+        </div>\
+      </div>';
+    return card;
+  }
+
+  function renderListas(pend, rec){
+    listaPend.innerHTML = '';
+    listaRec.innerHTML = '';
+    badgePend.textContent = pend.length;
+    badgeRec.textContent = rec.length;
+
+    if(!pend.length){
+      var d = document.createElement('div');
+      d.className = 'list-empty';
+      d.textContent = 'Sin pedidos pendientes.';
+      listaPend.appendChild(d);
+    }else{
+      pend.forEach(function(p){ listaPend.appendChild(cardPedido(p,true)); });
+    }
+
+    if(!rec.length){
+      var d2 = document.createElement('div');
+      d2.className = 'list-empty';
+      d2.textContent = 'Sin pedidos recibidos.';
+      listaRec.appendChild(d2);
+    }else{
+      if(recibidosVisible){
+        listaRec.style.display = 'block';
+        chevronRec.textContent = '▲';
+      }else{
+        listaRec.style.display = 'none';
+        chevronRec.textContent = '▼';
+      }
+      rec.forEach(function(p){ listaRec.appendChild(cardPedido(p,false)); });
+    }
+  }
+
+  btnAdd.addEventListener('click', function(){
+    if(!sectorSlug){
+      alert('Falta el sector en el enlace.'); return;
+    }
+    var ref = (inpRef.value || '').trim();
+    var mat = (inpMat.value || '').trim();
+    if(!ref && !mat){
+      alert('Escribe al menos referencia o material.'); return;
+    }
+    var fecha = new Date().toLocaleString('es-ES');
+    db.collection('pedidos').add({
+      sector: sectorSlug,
+      fechaPedido: fecha,
+      referencia: ref,
+      material: mat,
+      estado: 'pendiente',
+      creadoEn: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function(){
+      inpRef.value = '';
+      inpMat.value = '';
+      hint.textContent = 'Pedido anotado.';
+    }).catch(function(err){
+      console.warn('Error add pedido', err);
+      alert('No se ha podido enviar el pedido (error de conexión).');
+    });
+  });
+
+  document.addEventListener('click', function(ev){
+    var btn = ev.target.closest('.btn-mini');
+    if(!btn) return;
+    var id = btn.getAttribute('data-id');
+    var accion = btn.getAttribute('data-accion');
+    if(!id || !accion) return;
+
+    if(accion === 'marcarRecibido'){
+      // En la app "Recibido" => estado ENTREGADO en el panel y se anota fecha de recepción
+      db.collection('pedidos').doc(id).update({
+        estado:'entregado',
+        fechaRecibido: new Date().toLocaleString('es-ES')
+      }).catch(function(err){
+        console.warn('Error marcar recibido', err);
+        alert('No se pudo marcar recibido.');
+      });
+    }else if(accion === 'volverPendiente'){
+      db.collection('pedidos').doc(id).update({
+        estado:'pendiente'
+      }).catch(function(err){
+        console.warn('Error volver pendiente', err);
+        alert('No se pudo actualizar el pedido.');
+      });
+    }else if(accion === 'borrar'){
+      if(!confirm('¿Borrar este pedido de la lista?')) return;
+      db.collection('pedidos').doc(id).update({
+        ocultoEnApp: true
+      }).catch(function(err){
+        console.warn('Error borrar pedido', err);
+        alert('No se pudo borrar el pedido.');
+      });
+    }
+  });
+
+  headerRecibidos.addEventListener('click', function(){
+    recibidosVisible = !recibidosVisible;
+    if(recibidosVisible){
+      listaRec.style.display = 'block';
+      chevronRec.textContent = '▲';
+    }else{
+      listaRec.style.display = 'none';
+      chevronRec.textContent = '▼';
+    }
+  });
+</script>
+</body>
+</html>
