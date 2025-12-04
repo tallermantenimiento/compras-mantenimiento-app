@@ -608,7 +608,7 @@
       alert('Primero selecciona un sector.'); return;
     }
     const ref = (pcRef.value || '').trim();
-    const mat = (pcMat.value || '').trim();
+    const mat = document.getElementById('txtMaterial').value.trim();
     if(!ref && !mat){
       alert('Escribe al menos referencia o material.'); return;
     }
@@ -622,7 +622,7 @@
       creadoEn: firebase.firestore.FieldValue.serverTimestamp()
     }).then(function(){
       pcRef.value = '';
-      pcMat.value = '';
+     document.getElementById('txtMaterial').value = '';
     }).catch(function(err){
       console.warn('Error creando pedido PC', err);
       alert('No se ha podido crear el pedido.');
