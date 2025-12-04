@@ -401,6 +401,7 @@
             id: doc.id,
             fechaPedido: d.fechaPedido || '',
             fechaRecibido: d.fechaRecibido || '',
+            fechaEntrega: d.fechaEntrega || '',
             ref: d.referencia || '',
             mat: d.material || '',
             estado: est
@@ -450,10 +451,12 @@
           <td>${p.ref || ''}</td>
           <td style="white-space: pre-wrap; font-family: monospace;">${p.mat || ''}</td>
           <td>
-            <span class="estado-pill ${clase}">
-              <span class="dot"></span>${texto}
-            </span>
-          </td>
+            <td>
+    <span class="estado-pill ${clase}">
+        <span class="dot"></span>${texto}
+    </span>
+    ${ p.estado === 'entregado' ? '<div style="font-size: 11px; color: #666; margin-top: 4px;">' + (p.fechaEntrega || '') + '</div>' : '' }
+</td>
           <td class="acciones-pedido">
             <button class="btn-sm estado-btn" data-accion="setEstado" data-estado="pendiente" data-id="${p.id}">Pendiente</button>
             <button class="btn-sm estado-btn" data-accion="setEstado" data-estado="pedido" data-id="${p.id}">Pedido</button>
@@ -568,7 +571,7 @@
       const estado = btn.dataset.estado;
       const data = { estado: estado };
       if(estado === 'entregado'){
-        data.fechaRecibido = new Date().toLocaleString('es-ES');
+        data.fechaEntrega = new Date().toLocaleDateString('es-ES');
       }
       db.collection('pedidos').doc(id).update(data).catch(function(err){
         console.warn('Error actualizando estado', err);
@@ -587,7 +590,7 @@
       const estado = btn.dataset.estado;
       const data = { estado: estado };
       if(estado === 'entregado'){
-        data.fechaRecibido = new Date().toLocaleString('es-ES');
+      data.fechaEntrega = new Date().toLocaleDateString('es-ES');
       }
       db.collection('pedidos').doc(id).update(data).catch(function(err){
         console.warn('Error actualizando estado', err);
