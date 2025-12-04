@@ -643,5 +643,42 @@
   suscribirSectores();
   suscribirPedidosGlobal();
 </script>
+  <style>
+/* Esto arregla el formato al pegar */
+#txtMaterial, textarea {
+    font-family: 'Courier New', Courier, monospace !important;
+    white-space: pre !important;
+    overflow-x: auto;
+}
+</style>
+
+<script>
+// Script mágico para ordenar columnas de Excel
+const textArea = document.querySelector('textarea'); // Busca tu caja de texto
+if (textArea) {
+    textArea.addEventListener('paste', function(e) {
+        e.preventDefault();
+        let clipboardData = (e.clipboardData || window.clipboardData).getData('text');
+        let formattedText = formatTable(clipboardData);
+        
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+        const val = this.value;
+        this.value = val.substring(0, start) + formattedText + val.substring(end);
+        this.selectionStart = this.selectionEnd = start + formattedText.length;
+    });
+}
+
+function formatTable(text) {
+    let rows = text.split('\n').map(row => row.split('\t'));
+    if (rows.length < 1 || (rows.length === 1 && rows[0].length < 2)) return text;
+    let colWidths = [];
+    rows.forEach(row => row.forEach((cell, i) => {
+        let l = (cell || '').trim().length;
+        if (!colWidths[i] || l > colWidths[i]) colWidths[i] = l;
+    }));
+    return rows.map(row => row.map((cell, i) => (cell||'').trim().padEnd(colWidths[i] + 4, ' ')).join('').trimEnd()).join('\n');
+}
+</script>
 </body>
 </html>
