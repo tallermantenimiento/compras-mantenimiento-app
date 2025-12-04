@@ -453,9 +453,9 @@
           <td>
             <td>
     <span class="estado-pill ${clase}">
-        <span class="dot"></span>${texto}
-    </span>
-    ${ p.estado === 'entregado' ? '<div style="font-size: 11px; color: #666; margin-top: 4px;">' + (p.fechaEntrega || '') + '</div>' : '' }
+    <span class="dot"></span>${texto}
+</span>
+${ p.estado === 'entregado' ? '<div style="font-size: 11px; color: #666; margin-top: 4px;">' + (p.fechaEntrega || '') + '</div>' : '' }
 </td>
           <td class="acciones-pedido">
             <button class="btn-sm estado-btn" data-accion="setEstado" data-estado="pendiente" data-id="${p.id}">Pendiente</button>
