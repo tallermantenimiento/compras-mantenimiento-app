@@ -55,12 +55,38 @@
     .btn-mini:active{transform:scale(.96);}
     footer{padding:8px 10px 12px;font-size:10px;color:#9ca3af;text-align:center;}
     .toggle-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
+
+    /* --- ESTILOS PANTALLA DE BLOQUEO --- */
+    #lockScreen {
+      position: fixed; top:0; left:0; width:100%; height:100%;
+      background: #111827; z-index: 9999; display: none; /* Oculto por defecto, JS lo activa si hace falta */
+      flex-direction: column; align-items: center; justify-content: center;
+      color: #fff; padding: 20px; text-align: center;
+    }
+    #lockScreen input {
+      padding: 12px; font-size: 16px; border-radius: 8px; border: none; margin-top: 15px; width: 80%; max-width: 300px;
+      text-align: center; letter-spacing: 2px; color: #111827;
+    }
+    #lockScreen button {
+      margin-top: 15px; padding: 12px 30px; font-size: 14px; font-weight: 600; background: #2563eb; color: #fff; border:none; border-radius: 99px; cursor: pointer;
+    }
+    #lockMsg { color: #f87171; margin-top: 15px; font-size: 13px; min-height: 20px;}
   </style>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
 </head>
 <body>
+
+<div id="lockScreen">
+  <img src="./logo_sklum.jpg" style="width:60px;border-radius:10px;margin-bottom:20px;background:#fff;padding:4px;">
+  <h2 style="font-size:18px;margin-bottom:6px;">Zona Restringida</h2>
+  <p style="color:#9ca3af;font-size:13px;">Introduce la clave del sector para acceder.</p>
+  <input type="password" id="inputLock" placeholder="PIN / CONTRASEÑA">
+  <div id="lockMsg"></div>
+  <button id="btnUnlock">Entrar</button>
+</div>
+
 <header>
   <img src="./logo_sklum.jpg" alt="Sklum">
   <div class="title">
@@ -108,6 +134,7 @@
 </footer>
 
 <script>
+  // --- FUNCIONES DE UTILIDAD ---
   function slug(str){
     return (str || '').toString().trim().toLowerCase()
       .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
@@ -133,11 +160,12 @@
   function estadoTexto(estado){
     if(estado === 'pendiente') return 'Pendiente';
     if(estado === 'pedido') return 'Pedido';
-    if(estado === 'recibido') return 'Recibido';
+    if(estado === 'recibido') return 'En taller';
     if(estado === 'entregado') return 'Entregado';
     return 'Pendiente';
   }
 
+  // --- VARIABLES GLOBALES ---
   var params = new URLSearchParams(window.location.search);
   var sectorSlug = slug((params.get('sector') || '').trim());
 
@@ -153,17 +181,84 @@
   var headerRecibidos = document.getElementById('headerRecibidos');
   var chevronRec = document.getElementById('chevronRec');
 
+  // --- VARIABLES SEGURIDAD ---
+  var lockScreen = document.getElementById('lockScreen');
+  var inputLock = document.getElementById('inputLock');
+  var btnUnlock = document.getElementById('btnUnlock');
+  var lockMsg = document.getElementById('lockMsg');
+
   var unsub = null;
   var recibidosVisible = false;
 
+  // --- LÓGICA DE INICIO Y SEGURIDAD ---
   if(!sectorSlug){
     pillSector.querySelector('span:nth-child(2)').textContent = 'Sector: SIN DEFINIR';
     hint.textContent = 'Falta el parámetro ?sector= en el enlace.';
-  }else{
+  } else {
+    // 1. Verificar seguridad antes de mostrar nada
+    checkSecurity();
+  }
+
+  function checkSecurity(){
+    // Activamos bloqueo preventivo mientras carga
+    lockScreen.style.display = 'flex';
+    
+    db.collection('sectores').doc(sectorSlug).get().then(function(doc){
+        if(!doc.exists){
+            lockMsg.textContent = "El sector no existe o ha sido borrado.";
+            inputLock.style.display = 'none';
+            btnUnlock.style.display = 'none';
+            return; // Se queda bloqueado
+        }
+
+        var data = doc.data() || {};
+        var serverPass = data.password || ""; // Si no hay pass en DB, es ""
+
+        // Si NO hay contraseña configurada en el panel, entra directo
+        if(serverPass === ""){
+            iniciarApp();
+            return;
+        }
+
+        // Si HAY contraseña, verificamos si ya la tiene guardada en el móvil
+        var storedPass = localStorage.getItem('pwd_' + sectorSlug);
+
+        if(storedPass === serverPass){
+            // Contraseña correcta guardada -> Entra directo
+            iniciarApp();
+        } else {
+            // No tiene contraseña o es incorrecta -> Se queda en bloqueo esperando input
+            lockMsg.textContent = ""; // Limpiar mensajes previos
+            
+            // Evento para el botón de desbloquear
+            btnUnlock.onclick = function(){
+                var userPass = inputLock.value.trim();
+                if(userPass === serverPass){
+                    // Correcto: Guardamos y entramos
+                    localStorage.setItem('pwd_' + sectorSlug, userPass);
+                    iniciarApp();
+                } else {
+                    lockMsg.textContent = "Contraseña incorrecta.";
+                    inputLock.value = '';
+                    inputLock.focus();
+                }
+            };
+        }
+    }).catch(function(err){
+        console.error("Error seguridad", err);
+        lockMsg.textContent = "Error de conexión. Intenta recargar.";
+    });
+  }
+
+  function iniciarApp(){
+    // Ocultar pantalla de bloqueo y arrancar la app
+    lockScreen.style.display = 'none';
     pillSector.querySelector('span:nth-child(2)').textContent = 'Sector: ' + prettySector(sectorSlug);
-    hint.textContent = 'Aquí puedes anotar lo que necesitas; se ve en el panel del PC.';
+    hint.textContent = 'Aquí puedes anotar lo que necesitas.';
     suscribirPedidos();
   }
+
+  // --- LÓGICA DE LA APP (Igual que antes) ---
 
   function suscribirPedidos(){
     if(!sectorSlug) return;
@@ -289,7 +384,6 @@
     if(!id || !accion) return;
 
     if(accion === 'marcarRecibido'){
-      // En la app "Recibido" => estado ENTREGADO en el panel y se anota fecha de recepción
       db.collection('pedidos').doc(id).update({
         estado:'entregado',
         fechaRecibido: new Date().toLocaleString('es-ES')
