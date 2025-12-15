@@ -15,7 +15,6 @@
     *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
     body{background:var(--bg);color:var(--text);}
     
-    /* HEADER */
     header{display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid var(--border);background:#111827;color:#fff;}
     header img{width:40px;height:40px;border-radius:10px;background:#fff;padding:4px;object-fit:contain;}
     header .title{display:flex;flex-direction:column; flex:1;}
@@ -33,7 +32,6 @@
     
     @media (max-width:1100px){ .layout-row{flex-direction:column;} .panel-empresas{max-width:100%;} }
     
-    /* TABLAS */
     .tabla-empresas{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px;}
     .tabla-empresas th,.tabla-empresas td{border-bottom:1px solid var(--border);padding:4px 6px;text-align:left;}
     .tabla-empresas th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#6b7280;background:#f9fafb;}
@@ -46,6 +44,7 @@
     .field{display:flex;flex-direction:column;gap:2px;min-width:200px;}
     label{font-size:12px;color:var(--muted);}
     input[type="text"], textarea{padding:6px 9px;border-radius:999px;border:1px solid var(--border);font-size:13px;}
+    textarea { border-radius: 6px !important; }
     button{cursor:pointer;}
     .btn-main{padding:7px 14px;border-radius:999px;border:none;font-size:12px;background:var(--accent);color:#fff;}
     .btn-main:active{transform:scale(.97);}
@@ -60,14 +59,38 @@
     table{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px;}
     .tabla-pedidos-activos{table-layout:fixed; width:100%;}
     .tabla-pedidos-activos th:nth-child(1){width:90px;}
-    .tabla-pedidos-activos th:nth-child(2){width:100px;}
-    .tabla-pedidos-activos th:nth-child(3){width:auto;}
-    .tabla-pedidos-activos th:nth-child(4){width:140px;}
+    .tabla-pedidos-activos th:nth-child(2){width:80px;}
+    .tabla-pedidos-activos th:nth-child(3){width:200px;}
+    .tabla-pedidos-activos th:nth-child(4){width:130px;}
     .tabla-pedidos-activos th:nth-child(5){width:100px;}
-    .tabla-pedidos-activos th:nth-child(6){width:140px;}
+    .tabla-pedidos-activos th:nth-child(6){width:100px;}
+    .tabla-pedidos-activos th:nth-child(7){width:140px;}
+
+    .month-container table th:nth-child(1){width:80px;}
+    .month-container table th:nth-child(2){width:70px;}
+    .month-container table th:nth-child(3){width:180px;}
+    .month-container table th:nth-child(4){width:80px;}
+    .month-container table th:nth-child(5){width:130px;}
+    .month-container table th:nth-child(6){width:70px;}
+    .month-container table th:nth-child(7){width:120px;}
+
+    #resultadoComparacion table th:nth-child(1){width:100px;}
+    #resultadoComparacion table th:nth-child(2){width:120px;}
+    #resultadoComparacion table th:nth-child(3){width:70px;}
+    #resultadoComparacion table th:nth-child(4){width:auto;}
+    #resultadoComparacion table th:nth-child(5){width:100px;}
+
     th,td{padding:8px 8px; border-bottom:1px solid var(--border); vertical-align:middle;}
     th{background:var(--accent-soft);text-align:left;font-size:11px;text-transform:uppercase;color:#374151;letter-spacing:.03em; white-space: nowrap;}
     tbody tr:nth-child(odd){background:#f9fafb;}
+    
+    .fila-entregada { background-color: #f0fdf4 !important; }
+    .fila-entregada:hover { background-color: #dcfce7 !important; }
+
+    .alert-tag { display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%; font-size:10px; font-weight:bold; color:#fff; margin-left:4px; }
+    .alert-tag.money { background-color: #ef4444; } 
+    .alert-tag.provider { background-color: #f97316; } 
+
     .code{font-family:monospace;font-size:11px;background:#111827;color:#e5e7eb;padding:2px 6px;border-radius:999px;white-space:nowrap;}
     
     .quick-select-grid {display: flex;flex-wrap: wrap;gap: 8px;margin-bottom: 10px;padding: 4px 0;}
@@ -85,14 +108,14 @@
     .pill-sector span.dot{width:7px;height:7px;border-radius:999px;background:#22c55e;}
     .sector-name-pill{display:inline-flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 16px;border-radius:999px;background:#111827;color:#fff;font-size:12px;min-width:220px;}
     .sector-alert-pill{font-size:10px;padding:2px 8px;border-radius:999px;background:#b91c1c;color:#fff;white-space:nowrap;}
-    .estado-pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--border);}
+    .estado-pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:2px 8px;border:1px solid var(--border); border-radius:999px;}
     .estado-pill span.dot{width:6px;height:6px;border-radius:999px;background:currentColor;}
     .estado-pendiente{background:#fef3c7;border-color:#fbbf24;color:#92400e;}
     .estado-pedido{background:#e5e7eb;border-color:#cbd5e1;color:#374151;}
     .estado-recibido{background:#dbeafe;border-color:#60a5fa;color:#1d4ed8;}
     .estado-entregado{background:#dcfce7;border-color:#22c55e;color:#166534;}
-    .mat-activa{ width: 100%; }
-    .mat-activa-text{font-size:11px;color:#111827;display:block;word-break:break-word;white-space: pre-wrap;}
+    
+    .fila-entregada{background:#e6ffe6 !important;} 
     .empresa-pills{display:flex;gap:4px;flex-wrap:wrap;}
     .pill-empresa{border-radius:999px;border:1px solid var(--border);padding:2px 8px;font-size:10px;background:#f9fafb;color:#374151;cursor:pointer;}
     .pill-empresa.activa{background:#111827;color:#fff;border-color:#111827;}
@@ -100,12 +123,16 @@
     .acciones-pedido .estado-btn{min-width:78px;}
     .acciones-pedido .estado-btn.activo{background:#111827;color:#fff;}
     footer{padding:6px 18px 16px;font-size:11px;color:#9ca3af;text-align:center;}
-    .importe-wrapper{display:flex;align-items:center;gap:4px;}
-    .importe-wrapper .input-importe{width:80px;font-size:11px;padding:2px 4px;border-radius:6px;border:1px solid var(--border);}
+    
+    .importe-proveedor-cell{ display:flex; flex-direction:column; gap:4px; font-size:11px; }
+    .importe-wrapper{ display:flex; align-items:center; gap:4px; }
+    .input-importe-pendiente{ width:70px; font-size:10px; padding:3px 6px; border-radius:6px; border:1px solid var(--border); text-align: right; }
+    .input-proveedor { width:100%; font-size:10px; padding:3px 6px; border-radius:6px; border:1px solid var(--border); }
     .eur-symbol{font-size:11px;color:#374151;}
-    .mat-resumen{display:flex;align-items:center;gap:6px;max-width:260px;}
-    .mat-resumen .mat-text{font-size:11px;color:#111827;white-space:normal;word-break:break-word;max-width:220px;}
-    .btn-mini-mat{font-size:10px;padding:2px 6px;border-radius:999px;border:1px solid var(--border);background:#f9fafb;color:#374151;cursor:pointer;}
+    
+    .mat-resumen{display:flex;flex-direction:column;gap:4px;max-width:100%;}
+    .mat-resumen .mat-text{font-size:11px;color:#111827;white-space:normal;word-break:break-word;max-width:100%;}
+    .btn-mini-mat{font-size:10px;padding:2px 6px;border-radius:999px;border:1px solid var(--border);background:#f9fafb;color:#374151;cursor:pointer;align-self: flex-start;}
     
     .grupo-empresa-row td{background:#f3f4f6;font-size:11px;font-weight:600;color:#111827;border-top:1px solid var(--border);cursor:pointer;}
     .grupo-empresa-total{margin-left:8px;font-size:11px;color:#111827;font-weight:500;}
@@ -114,8 +141,9 @@
     .grupo-empresa-badge{display:inline-block;margin-right:6px;padding:1px 6px;border-radius:999px;background:#e5e7eb;font-size:10px;color:#374151;}
     .grupo-empresa-chevron{float:right;font-size:11px;color:#6b7280;}
     
-    /* NUEVO: ESTILO PARA LA ALERTA DE PRECIO */
-    .alert-price-pill { margin-left: 8px; background: #ef4444; color: #fff; font-size: 10px; padding: 2px 10px; border-radius: 99px; font-weight: 600; display: inline-block;}
+    .alert-wrapper { display: flex; align-items: center; gap: 4px; }
+    .alert-price-pill { background: #ef4444; color: #fff; font-size: 10px; padding: 2px 7px; border-radius: 99px; font-weight: 600; display: inline-block; white-space: nowrap; }
+    .alert-proveedor-pill { background: #f97316; color: #fff; font-size: 10px; padding: 2px 7px; border-radius: 99px; font-weight: 600; display: inline-block; white-space: nowrap; }
 
     .entregados-box{margin-top:10px;border-top:1px dashed var(--border);padding-top:6px;}
     .entregados-header{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#374151;margin-bottom: 8px;}
@@ -248,7 +276,7 @@
             </div>
           </div>
           <table class="tabla-pedidos-activos">
-            <thead><tr><th>Fecha pedido</th><th>Referencia</th><th>Material solicitado</th><th>Empresa</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <thead><tr><th>Fecha pedido</th><th>Referencia</th><th>Material solicitado</th><th>Importe / Proveedor</th><th>Empresa</th><th>Estado</th><th>Acciones</th></tr></thead>
             <tbody id="tbodyPedidosActivos"></tbody>
           </table>
           <div class="entregados-box">
@@ -288,6 +316,41 @@
         </div>
         <table class="tabla-resumen-empresas"><thead><tr><th>Empresa</th><th>Importe</th></tr></thead><tbody id="tbodyResumenEmpresas"></tbody></table>
         <div class="resumen-total-global" id="resumenTotalGlobal"></div>
+        
+        <div style="margin-top:14px; padding-top:8px; border-top:1px dashed var(--border);">
+            <h3 style="font-size:13px;margin-bottom:4px;">Análisis y Comparación de Precios</h3>
+            <div class="row" style="margin-top:4px; align-items:flex-end; gap:10px; flex-wrap:wrap;">
+                <div class="field" style="flex:2; min-width:220px;">
+                    <label>Buscar material o referencia</label>
+                    <input id="inputBusquedaPrecio" type="text" placeholder="Ej: tornillos m8, válvula...">
+                </div>
+                <div class="field" style="flex:1; min-width:180px;">
+                    <label>Rango de años (opcional)</label>
+                    <select id="filtroAnios">
+                        <option value="0">Todos los años</option>
+                        <option value="1">Último año</option>
+                        <option value="2">Últimos 2 años</option>
+                        <option value="3">Últimos 3 años</option>
+                        <option value="4">Últimos 4 años</option>
+                        <option value="5">Últimos 5 años</option>
+                        <option value="6">Últimos 6 años</option>
+                        <option value="7">Últimos 7 años</option>
+                        <option value="8">Últimos 8 años</option>
+                        <option value="9">Últimos 9 años</option>
+                        <option value="10">Últimos 10 años</option>
+                    </select>
+                </div>
+                <div class="field" style="flex:1; min-width:180px;">
+                    <label>Filtrar por proveedor (opcional)</label>
+                    <input id="filtroProveedor" type="text" placeholder="Ej: Amazon, Leroy Merlin">
+                </div>
+                <div class="field" style="flex:0 0 auto; display:flex; gap:6px;">
+                    <button class="btn-main" id="btnCompararPrecios">Comparar Precios</button>
+                    <button class="btn-sm" id="btnResetComparacion" style="background:#f3f4f6; color:#374151; border:1px solid #d1d5db;">Reset</button>
+                </div>
+            </div>
+            <div id="resultadoComparacion" style="margin-top:12px;"></div>
+        </div>
       </div>
     </section>
   </div>
@@ -366,42 +429,113 @@
   function estadoClase(e){ if(e==='pendiente')return 'estado-pendiente'; if(e==='pedido')return 'estado-pedido'; if(e==='recibido')return 'estado-recibido'; if(e==='entregado')return 'estado-entregado'; return 'estado-pendiente';}
   function estadoTexto(e){ if(e==='pendiente')return 'Pendiente'; if(e==='pedido')return 'Pedido'; if(e==='recibido')return 'En taller'; if(e==='entregado')return 'Entregado'; return 'Pendiente';}
   function nombreMes(n){ const i=parseInt(n,10); const m=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']; return m[i-1]||'Mes '+n;}
+  function parseFecha(d){ 
+    try{if(d.fechaRecibidoTS)return d.fechaRecibidoTS.toDate();}catch(e){} 
+    const s=(d.fechaRecibido||'').toString(); 
+    const m=s.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/); 
+    if(m)return new Date(m[3],m[2]-1,m[1]); 
+    return null;
+  }
 
-  const nuevoSectorNombre=document.getElementById('nuevoSectorNombre'), nuevoSectorPassword=document.getElementById('nuevoSectorPassword'), btnCrearSector=document.getElementById('btnCrearSector'), tbodySectores=document.getElementById('tbodySectores'), badgeSectores=document.getElementById('badgeSectores');
-  const pillSectorActivo=document.getElementById('pillSectorActivo'), hintSector=document.getElementById('hintSector'), tbodyActivos=document.getElementById('tbodyPedidosActivos');
-  const containerEntregados=document.getElementById('containerEntregadosDinamico'), badgeResumen=document.getElementById('badgeResumen'), badgeEntregados=document.getElementById('badgeEntregados'), headerEntregados=document.getElementById('headerEntregados');
-  const pcRef=document.getElementById('pcRef'), pcMat=document.getElementById('pcMat'), btnPcAdd=document.getElementById('btnPcAdd');
-  const nuevaEmpresaNombre=document.getElementById('nuevaEmpresaNombre'), btnCrearEmpresa=document.getElementById('btnCrearEmpresa'), tbodyEmpresas=document.getElementById('tbodyEmpresas');
+  const nuevoSectorNombre=document.getElementById('nuevoSectorNombre');
+  const nuevoSectorPassword=document.getElementById('nuevoSectorPassword');
+  const btnCrearSector=document.getElementById('btnCrearSector');
+  const tbodySectores=document.getElementById('tbodySectores');
+  const badgeSectores=document.getElementById('badgeSectores');
+  const pillSectorActivo=document.getElementById('pillSectorActivo');
+  const hintSector=document.getElementById('hintSector');
+  const tbodyActivos=document.getElementById('tbodyPedidosActivos');
+  const containerEntregados=document.getElementById('containerEntregadosDinamico');
+  const badgeResumen=document.getElementById('badgeResumen');
+  const badgeEntregados=document.getElementById('badgeEntregados');
+  const pcRef=document.getElementById('pcRef');
+  const pcMat=document.getElementById('pcMat');
+  const btnPcAdd=document.getElementById('btnPcAdd');
+  const nuevaEmpresaNombre=document.getElementById('nuevaEmpresaNombre');
+  const btnCrearEmpresa=document.getElementById('btnCrearEmpresa');
+  const tbodyEmpresas=document.getElementById('tbodyEmpresas');
+  const searchMaterial = document.getElementById('inputBusquedaPrecio');
+  const btnCompararPrecios = document.getElementById('btnCompararPrecios');
+  const btnResetComparacion = document.getElementById('btnResetComparacion');
+  const resultadosComparacion = document.getElementById('resultadoComparacion');
 
   let sectorActual=null, unsubEmpresas=null, empresasCache=[], totalesEmpresasGlobal={};
-  let unsubSectores=null, unsubPedidosSector=null, unsubPedidosGlobal=null, sectoresCache=[], pendientesPorSector={}, mapaPedidosAnioEmpresa={};
+  let unsubSectores=null, unsubPedidosSector=null, unsubPedidosGlobal=null, sectoresCache=[], pendientesPorSector={};
+  let globalPedidosEntregados = [];
 
   function suscribirSectores(){
     unsubSectores && unsubSectores();
-    unsubSectores = db.collection('sectores').orderBy('nombre').onSnapshot(function(snapshot){
-      const s=[]; snapshot.forEach(d=>{ const da=d.data()||{}; s.push({id:d.id, nombre:da.nombre||d.id, slug:da.slug||d.id, password:da.password||''}); });
-      sectoresCache=s; renderSectores();
-    }, err=>console.warn('Error sectores', err));
+    unsubSectores = db.collection('sectores').orderBy('nombre').onSnapshot(snapshot=>{
+      const s=[];
+      snapshot.forEach(d=>{
+        const da=d.data()||{};
+        s.push({id:d.id, nombre:da.nombre||d.id, slug:da.slug||d.id, password:da.password||''});
+      });
+      sectoresCache=s;
+      renderSectores();
+    });
   }
+
   function suscribirPedidosGlobal(){
     unsubPedidosGlobal && unsubPedidosGlobal();
-    unsubPedidosGlobal = db.collection('pedidos').onSnapshot(function(snapshot){
+    unsubPedidosGlobal = db.collection('pedidos').onSnapshot(snapshot=>{
       const c={}, t={};
+      globalPedidosEntregados = [];
+
       snapshot.forEach(doc=>{
-        const d=doc.data()||{}; const est=normalizarEstado(d.estado); const sec=d.sector||''; let emp=d.empresa&&d.empresa.trim()?d.empresa.trim():'Sin empresa'; if(emp==='SLUM')emp='SKLUM';
+        const d=doc.data()||{};
+        const est=normalizarEstado(d.estado);
+        const sec=d.sector||'';
+        let emp=d.empresa&&d.empresa.trim()?d.empresa.trim():'Sin empresa';
+        if(emp==='SLUM')emp='SKLUM';
+
         if(est!=='entregado') c[sec]=(c[sec]||0)+1;
-        if(est==='entregado'){ const r=(d.importeCompra||'').toString().replace(',','.'); const n=parseFloat(r); if(!isNaN(n)) t[emp]=(t[emp]||0)+n; }
+
+        if(est==='entregado'){
+          const r=(d.importeCompra||'').toString().replace(',','.');
+          const n=parseFloat(r);
+          if(!isNaN(n)) t[emp]=(t[emp]||0)+n;
+
+          const f = parseFecha(d);
+          if(f && !isNaN(n)){
+            globalPedidosEntregados.push({
+              id: doc.id,
+              empresa: emp,
+              fecha: f,
+              importe: n,
+              ref: (d.referencia||'').trim(),
+              mat: (d.material||'').trim(),
+              proveedor: (d.proveedor||'').trim()
+            });
+          }
+        }
       });
-      pendientesPorSector=c; totalesEmpresasGlobal=t; renderSectores(); renderEmpresasPanel();
-    }, err=>console.warn('Error pedidos global', err));
+
+      pendientesPorSector=c;
+      totalesEmpresasGlobal=t;
+
+      renderSectores();
+      renderEmpresasPanel();
+      actualizarGraficosYResumenes();
+    });
   }
+
   function suscribirEmpresas(){
     unsubEmpresas && unsubEmpresas();
-    unsubEmpresas = db.collection('empresas').orderBy('nombre').onSnapshot(function(snapshot){
-      const a=[]; snapshot.forEach(d=>{ const da=d.data()||{}; const n=(da.nombre||'').trim(); if(n) a.push({id:d.id,nombre:n}); });
-      empresasCache=a; renderEmpresasPanel(); if(sectorActual) suscribirPedidosSector();
-    }, err=>console.warn('Error empresas', err));
+    unsubEmpresas = db.collection('empresas').orderBy('nombre').onSnapshot(snapshot=>{
+      const a=[];
+      snapshot.forEach(d=>{
+        const da=d.data()||{};
+        const n=(da.nombre||'').trim();
+        if(n) a.push({id:d.id,nombre:n});
+      });
+      empresasCache=a;
+      renderEmpresasPanel();
+      if(sectorActual) suscribirPedidosSector();
+      actualizarGraficosYResumenes();
+    });
   }
+
   function renderEmpresasPanel(){
     if(!tbodyEmpresas)return; tbodyEmpresas.innerHTML=''; const mt=totalesEmpresasGlobal||{}; const l=empresasCache.slice(); const ne=[];
     Object.keys(mt).forEach(n=>{ const ex=l.some(e=>e.nombre===n); if(!ex && n!=='Sin empresa') ne.push(n); });
@@ -413,6 +547,7 @@
     });
     if(tse){ const t=mt['Sin empresa']||0; const tr=document.createElement('tr'); tr.innerHTML=`<td>Sin empresa</td><td>${t.toFixed(2).replace('.',',')} €</td><td></td>`; tbodyEmpresas.appendChild(tr); }
   }
+
   function renderSectores(){
     tbodySectores.innerHTML=''; const sc=sectoresCache||[]; badgeSectores.textContent=sc.length+(sc.length===1?' sector':' sectores');
     let base = window.location.href; base = base.substring(0, base.lastIndexOf('/') + 1); const appBase = base + 'app_responsable.html?sector=';
@@ -440,6 +575,7 @@
       tdA.appendChild(bC); tdA.appendChild(bK); tdA.appendChild(bD); tr.appendChild(tdA); tbodySectores.appendChild(tr);
     });
   }
+
   function cambiarClave(s){
     const nueva = prompt("Introduce la nueva contraseña para el sector " + s.nombre + ":\n(Deja en blanco para quitarla)", s.password);
     if(nueva === null) return; 
@@ -447,31 +583,52 @@
       .then(()=>alert("Contraseña actualizada. Los responsables deberán volver a introducirla."))
       .catch(e=>alert("Error al actualizar: "+e));
   }
+
   function aplicarSector(sv){
     if(!sv){ sectorActual=null; pillSectorActivo.querySelector('span:nth-child(2)').textContent='Sin sector seleccionado'; hintSector.textContent='Elige un sector arriba.'; tbodyActivos.innerHTML=''; containerEntregados.innerHTML=''; badgeResumen.textContent='0'; badgeEntregados.textContent='0'; document.querySelectorAll('.qs-pill').forEach(b=>b.classList.remove('active')); return; }
     sectorActual=sv; const txt=prettySector(sv); pillSectorActivo.querySelector('span:nth-child(2)').textContent=txt; hintSector.textContent='';
     renderSectores(); suscribirPedidosSector();
   }
+
   function suscribirPedidosSector(){
     unsubPedidosSector && unsubPedidosSector(); tbodyActivos.innerHTML=''; containerEntregados.innerHTML=''; badgeResumen.textContent='0'; badgeEntregados.textContent='0';
     if(!sectorActual)return;
-    unsubPedidosSector=db.collection('pedidos').where('sector','==',sectorActual).onSnapshot(function(snapshot){
-      const p=[]; snapshot.forEach(d=>{ const da=d.data()||{}; p.push({ id:d.id, fechaPedido:da.fechaPedido||'', fechaRecibido:da.fechaRecibido||'', ref:da.referencia||'', mat:da.material||'', empresa:da.empresa||'', importeCompra:da.importeCompra||'', estado:normalizarEstado(da.estado) }); });
+    unsubPedidosSector=db.collection('pedidos').where('sector','==',sectorActual).onSnapshot(snapshot=>{
+      const p=[];
+      snapshot.forEach(d=>{
+        const da=d.data()||{};
+        p.push({ id:d.id, fechaPedido:da.fechaPedido||'', fechaRecibido:da.fechaRecibido||'', ref:da.referencia||'', mat:da.material||'', empresa:da.empresa||'', importeCompra:da.importeCompra||'', proveedor:da.proveedor||'', estado:normalizarEstado(da.estado) });
+      });
       renderPedidos(p);
-    }, err=>{ console.warn('Error pedidos', err); hintSector.textContent='Error al obtener pedidos.'; });
+    });
   }
+
   function renderPedidos(pedidos){
     tbodyActivos.innerHTML=''; containerEntregados.innerHTML=''; const act=[], ent=[]; pedidos.forEach(p=>{ if(p.estado==='entregado') ent.push(p); else act.push(p); });
     badgeResumen.textContent=String(pedidos.length); badgeEntregados.textContent=String(ent.length);
-    if(!act.length){ const tr=document.createElement('tr'); tr.innerHTML='<td colspan="6" style="font-size:11px;color:#6b7280">Sin pedidos para este sector.</td>'; tbodyActivos.appendChild(tr); }
+    if(!act.length){ const tr=document.createElement('tr'); tr.innerHTML='<td colspan="7" style="font-size:11px;color:#6b7280">Sin pedidos para este sector.</td>'; tbodyActivos.appendChild(tr); }
     else{
       act.forEach(p=>{
         const tr=document.createElement('tr'); const cl=estadoClase(p.estado); const tx=estadoTexto(p.estado); const fm=p.fechaPedido||'';
         let el=empresasCache.length?empresasCache.map(e=>e.nombre):['WOODS','THE MASIE','SKLUM']; const eh=el.map(n=>`<button class="pill-empresa" data-empresa="${n}">${n}</button>`).join('');
-        const mf=p.mat||''; const lim=100; const hn=mf.includes('\n'); const il=mf.length>lim; let mh='';
-        if(il||hn){ let st=mf; if(hn){ const l=mf.split('\n'); st=l[0]+(l.length>1?'...':''); } else { st=mf.slice(0,lim)+'...'; } mh=`<div class="mat-activa" data-full="${encodeURIComponent(mf)}"><span class="mat-activa-text">${st}</span><button class="btn-mini-mat btn-toggle-active" style="margin-top:4px;">Ver</button></div>`; }
-        else { mh=`<div class="mat-activa"><span class="mat-activa-text">${mf}</span></div>`; }
-        tr.innerHTML=`<td>${fm}</td><td>${p.ref||''}</td><td>${mh}</td><td><div class="empresa-pills" data-id="${p.id}">${eh}</div></td><td><span class="estado-pill ${cl}"><span class="dot"></span>${tx}</span></td><td class="acciones-pedido"><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="pendiente" data-id="${p.id}">Pendiente</button><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="pedido" data-id="${p.id}">Pedido</button><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="recibido" data-id="${p.id}">En taller</button><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="entregado" data-id="${p.id}">Entregado</button></td>`;
+        
+        const valMat = p.mat || '';
+        const materialCell = `<textarea class="input-material-activos" data-id="${p.id}" placeholder="Descripción del material" style="min-height:50px;width:100%;font-size:11px;padding:4px;border-radius:6px;border:1px solid var(--border);white-space:pre-wrap;overflow-wrap:break-word;">${valMat}</textarea>`;
+        
+        const valImp = p.importeCompra || '';
+        const valProv = p.proveedor || '';
+        
+        const cellImpProv = `
+            <div style="display:flex; flex-direction:column; gap:4px;">
+                <input type="text" class="input-proveedor" data-id="${p.id}" value="${valProv}" placeholder="Proveedor" style="font-size:10px; width:100%;">
+                <div style="display:flex; align-items:center;">
+                    <span style="font-size:10px; margin-right:2px;">€</span>
+                    <input type="text" class="input-importe" data-id="${p.id}" value="${valImp}" placeholder="0.00" style="width:70px; font-size:10px;">
+                </div>
+            </div>
+        `;
+
+        tr.innerHTML=`<td>${fm}</td><td>${p.ref||''}</td><td>${materialCell}</td><td>${cellImpProv}</td><td><div class="empresa-pills" data-id="${p.id}">${eh}</div></td><td><span class="estado-pill ${cl}"><span class="dot"></span>${tx}</span></td><td class="acciones-pedido"><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="pendiente" data-id="${p.id}">Pendiente</button><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="pedido" data-id="${p.id}">Pedido</button><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="recibido" data-id="${p.id}">En taller</button><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="entregado" data-id="${p.id}">Entregado</button></td>`;
         const b=tr.querySelectorAll('.estado-btn'); b.forEach(bt=>{if(bt.dataset.estado===p.estado)bt.classList.add('activo');});
         if(p.empresa){ const c=tr.querySelector('.empresa-pills'); if(c){ const bt=c.querySelector(`.pill-empresa[data-empresa="${p.empresa}"]`); if(bt) bt.classList.add('activa'); } }
         tbodyActivos.appendChild(tr);
@@ -486,7 +643,6 @@
       k.forEach(e=>{
         const l=gr[e]||[]; const yp={}; for(let i=1;i<=12;i++)yp[i]=[]; const hi={}; let ta=0; 
         
-        // --- LOGICA DE AVISO "SIN PRECIO" ---
         let missingPriceCount = 0;
 
         l.forEach(p=>{ 
@@ -500,7 +656,6 @@
                 if(!isNaN(n) && n > 0) {
                     ta += n; 
                 } else {
-                    // Contamos como "falta precio" si es nulo, vacío, no numérico o cero
                     missingPriceCount++;
                 }
             } else { 
@@ -510,7 +665,6 @@
 
         const tas=ta.toFixed(2).replace('.',',')+' €';
         
-        // --- CREAR HTML DE LA PILL ROJA ---
         let alertPillHtml = '';
         if(missingPriceCount > 0){
             alertPillHtml = `<span class="alert-price-pill">${missingPriceCount} asignar precio</span>`;
@@ -520,7 +674,6 @@
         trG.className='grupo-empresa-row'; 
         trG.dataset.empresa=e; 
         trG.dataset.colapsado='1'; 
-        // AÑADIMOS EL BADGE AQUI
         trG.innerHTML=`<td colspan="7"><span class="grupo-empresa-label">${e}</span><span class="grupo-empresa-badge">${l.length}</span>${alertPillHtml}<span class="grupo-empresa-total">Total año ${ya}: ${tas}</span><span class="grupo-empresa-chevron">▼</span></td>`; 
         tb.appendChild(trG);
 
@@ -528,13 +681,48 @@
         const dp=document.createElement('div'); dp.className='months-grid';
         for(let m=1;m<=12;m++){ const om=yp[m]; const c=om.length; const pl=document.createElement('div'); pl.className='month-pill'; if(c>0)pl.classList.add('has-orders'); pl.textContent=nombreMes(m).toUpperCase()+' ('+c+')'; pl.addEventListener('click',function(){ const isa=pl.classList.contains('active'); dp.querySelectorAll('.month-pill').forEach(el=>el.classList.remove('active')); tdC.querySelectorAll('.month-container').forEach(el=>el.classList.remove('active')); if(!isa&&c>0){ pl.classList.add('active'); const ct=tdC.querySelector(`#cont-${slug(e)}-m${m}`); if(ct)ct.classList.add('active'); } }); dp.appendChild(pl); }
         tdC.appendChild(dp);
-        for(let m=1;m<=12;m++){ const om=yp[m]; if(om.length===0)continue; const dm=document.createElement('div'); dm.id=`cont-${slug(e)}-m${m}`; dm.className='month-container'; const tm=document.createElement('table'); tm.style.margin='0'; tm.innerHTML=`<thead><tr><th>Entrega</th><th>Ref</th><th>Material</th><th>Empresa</th><th>Importe</th><th>Estado</th><th>Acciones</th></tr></thead><tbody></tbody>`; const tmb=tm.querySelector('tbody');
-          om.forEach(p=>{ const tr=document.createElement('tr'); const fm=p.fechaRecibido||p.fechaPedido||''; tr.innerHTML=`<td><input type="text" class="input-fecha" data-id="${p.id}" value="${fm}" placeholder="dd/mm/yyyy" style="width:75px;border:none;background:transparent;font-size:11px;color:#374151;"></td><td>${p.ref||''}</td><td><div class="mat-resumen" data-full="${p.mat||''}"><span class="mat-text"></span><button type="button" class="btn-mini-mat" data-id="${p.id}">Ver</button></div></td><td>${p.empresa||''}</td><td><div class="importe-wrapper"><span class="eur-symbol">€</span><input type="number" class="input-importe" data-id="${p.id}" value="${p.importeCompra||''}" step="0.01" min="0"></div></td><td><span class="estado-pill estado-entregado"><span class="dot"></span>Entregado</span></td><td class="acciones-pedido"><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="pendiente" data-id="${p.id}">Volver a pendiente</button><button class="btn-sm danger" data-accion="borrar" data-id="${p.id}">Borrar</button></td>`; tmb.appendChild(tr); }); dm.appendChild(tm); tdC.appendChild(dm); }
+        for(let m=1;m<=12;m++){ const om=yp[m]; if(om.length===0)continue; const dm=document.createElement('div'); dm.id=`cont-${slug(e)}-m${m}`; dm.className='month-container'; const tm=document.createElement('table'); tm.style.margin='0'; tm.innerHTML=`<thead><tr><th>Entrega</th><th>Ref</th><th>Material</th><th>Empresa</th><th>Importe / Proveedor</th><th>Estado</th><th>Acciones</th></tr></thead><tbody></tbody>`; const tmb=tm.querySelector('tbody');
+          om.forEach(p=>{ 
+            const tr=document.createElement('tr'); 
+            tr.classList.add('fila-entregada');
+            const fm=p.fechaRecibido||p.fechaPedido||''; 
+            
+            let alertPrice = '';
+            const raw = (p.importeCompra||'').toString().replace(',','.'); 
+            const n = parseFloat(raw);
+            if(isNaN(n) || n <= 0) alertPrice = '<span class="alert-tag money">€</span>';
+
+            let alertProv = '';
+            if(!p.proveedor || p.proveedor.trim() === '') alertProv = '<span class="alert-tag provider">?</span>';
+
+            const cellImpProv = `
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <div style="display:flex; align-items:center;">
+                <input type="text" class="input-proveedor" data-id="${p.id}" value="${p.proveedor||''}" placeholder="Proveedor" style="font-size:10px; width:100%; padding:3px 6px; border-radius:6px; border:1px solid var(--border);">
+                ${alertProv}
+              </div>
+              <div style="display:flex; align-items:center; gap:4px;">
+                <span style="font-size:10px;">€</span>
+                <input type="text" class="input-importe-pendiente" data-id="${p.id}" value="${p.importeCompra||''}" placeholder="0.00" style="width:70px; font-size:10px; padding:3px 6px; border-radius:6px; border:1px solid var(--border);">
+                <button class="btn-sm primary btn-aplicar-cambios" data-id="${p.id}" style="padding:3px 8px; font-size:10px; min-width:50px;">Aplicar</button>
+              </div>
+              ${alertPrice}
+            </div>
+            `;
+            
+            const valMatArchived = p.mat || '';
+            const materialCellArchived = `<textarea class="input-material-entregados" data-id="${p.id}" placeholder="Descripción del material" style="min-height:40px;width:100%;font-size:10px;padding:4px;border-radius:6px;border:1px solid var(--border);white-space:pre-wrap;overflow-wrap:break-word;">${valMatArchived}</textarea>`;
+
+            tr.innerHTML=`<td><input type="text" class="input-fecha" data-id="${p.id}" value="${fm}" placeholder="dd/mm/yyyy" style="width:75px;border:none;background:transparent;font-size:11px;color:#374151;"></td><td>${p.ref||''}</td><td>${materialCellArchived}</td><td>${p.empresa||''}</td><td>${cellImpProv}</td><td><span class="estado-pill estado-entregado"><span class="dot"></span>Entregado</span></td><td class="acciones-pedido"><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="pendiente" data-id="${p.id}">Volver a pendiente</button><button class="btn-sm danger" data-accion="borrar" data-id="${p.id}">Borrar</button></td>`; tmb.appendChild(tr); }); dm.appendChild(tm); tdC.appendChild(dm); }
         const yo=Object.keys(hi).sort((a,b)=>b-a);
         if(yo.length>0){ const da=document.createElement('div'); da.className='archive-section'; const ha=document.createElement('div'); ha.className='archivo-header'; ha.innerHTML=`<span>Histórico / Años anteriores (${yo.join(', ')})</span><span>▼</span>`; const ba=document.createElement('div'); ba.className='archivo-body';
           ha.addEventListener('click',()=>{ const io=ba.classList.contains('open'); if(io){ ba.classList.remove('open'); ha.querySelector('span:last-child').textContent='▼'; }else{ ba.classList.add('open'); ha.querySelector('span:last-child').textContent='▲'; } });
           yo.forEach(y=>{ const oy=hi[y]; const dy=document.createElement('div'); dy.style.padding='8px'; dy.style.borderBottom='1px solid #eee'; dy.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;"><strong style="font-size:12px;">Año ${y} (${oy.length} pedidos)</strong><button class="btn-sm danger btn-borrar-anio" data-year="${y}" data-empresa="${e}">Borrar año ${y}</button></div>`; const th=document.createElement('table'); th.style.margin='0'; th.innerHTML=`<thead><tr><th>Entrega</th><th>Ref</th><th>Material</th><th>Acciones</th></tr></thead><tbody></tbody>`; const tbh=th.querySelector('tbody');
-            oy.forEach(p=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${p.fechaRecibido||''}</td><td>${p.ref}</td><td><span style="font-size:10px;">${(p.mat||'').substring(0,30)}...</span></td><td><button class="btn-sm danger" data-accion="borrar" data-id="${p.id}">X</button></td>`; tbh.appendChild(tr); }); dy.appendChild(th); ba.appendChild(dy); });
+            oy.forEach(p=>{ const tr=document.createElement('tr'); 
+            const valMatHistorico = p.mat || '';
+            const materialCellHistorico = `<textarea class="input-material-entregados" data-id="${p.id}" placeholder="Descripción del material" style="min-height:30px;width:100%;font-size:10px;padding:4px;border-radius:6px;border:1px solid var(--border);white-space:pre-wrap;overflow-wrap:break-word;">${valMatHistorico}</textarea>`;
+
+            tr.innerHTML=`<td>${p.fechaRecibido||''}</td><td>${p.ref}</td><td>${materialCellHistorico}</td><td><button class="btn-sm danger" data-accion="borrar" data-id="${p.id}">X</button></td>`; tbh.appendChild(tr); }); dy.appendChild(th); ba.appendChild(dy); });
           da.appendChild(ha); da.appendChild(ba); tdC.appendChild(da); }
         trC.appendChild(tdC); tb.appendChild(trC);
       });
@@ -543,207 +731,419 @@
         const bdy=e.target.closest('.btn-borrar-anio'); if(bdy){ const y=bdy.dataset.year; const emp=bdy.dataset.empresa; const dy=bdy.closest('div').parentElement; const bb=dy.querySelectorAll('button[data-accion="borrar"]'); if(confirm(`¿Borrar ${bb.length} pedidos del año ${y} de ${emp}?`)){ bb.forEach(b=>{ db.collection('pedidos').doc(b.dataset.id).delete().catch(err=>console.warn(err)); }); } }
       });
     }
-    inicializarResumenMaterial();
   }
-  function inicializarResumenMaterial(){ if(!containerEntregados)return; const ms=containerEntregados.querySelectorAll('.mat-resumen'); ms.forEach(m=>{ const f=m.getAttribute('data-full')||''; const s=m.querySelector('.mat-text'); if(!s)return; if(f.length>60)s.textContent=f.slice(0,57)+'...'; else s.textContent=f; }); }
-  if(tbodyActivos){ tbodyActivos.addEventListener('click',function(e){ const b=e.target.closest('.btn-toggle-active'); if(b){ const w=b.closest('.mat-activa'); const s=w.querySelector('.mat-activa-text'); const fe=w.dataset.full; const ft=decodeURIComponent(fe); if(b.textContent==='Ver'){ s.textContent=ft; b.textContent='Ocultar'; }else{ const hn=ft.includes('\n'); let st=''; if(hn){ st=ft.split('\n')[0]+'...'; }else{ st=ft.slice(0,100)+'...'; } s.textContent=st; b.textContent='Ver'; } } }); }
+
+  if(tbodyActivos){ 
+      tbodyActivos.addEventListener('change', function(e){
+          const i = e.target.closest('.input-importe');
+          const p = e.target.closest('.input-proveedor');
+          const m = e.target.closest('.input-material-activos'); 
+          
+          if(i){
+              const id = i.dataset.id;
+              const val = i.value.replace(',', '.');
+              db.collection('pedidos').doc(id).update({importeCompra: val}).catch(err=>console.warn(err));
+          }
+          if(p){
+              const id = p.dataset.id;
+              const val = p.value;
+              db.collection('pedidos').doc(id).update({proveedor: val}).catch(err=>console.warn(err));
+          }
+          if(m){ 
+              const id = m.dataset.id;
+              const val = m.value;
+              db.collection('pedidos').doc(id).update({material: val}).catch(err=>console.warn(err));
+          }
+      });
+  }
   if(containerEntregados){
-    containerEntregados.addEventListener('click',function(e){ const b=e.target.closest('.btn-mini-mat'); if(!b)return; const w=b.closest('.mat-resumen'); if(!w)return; const f=w.getAttribute('data-full')||''; const s=w.querySelector('.mat-text'); if(!s)return; if(b.dataset.full==='1'){ if(f.length>60)s.textContent=f.slice(0,57)+'...'; else s.textContent=f; b.textContent='Ver'; b.dataset.full='0'; }else{ s.textContent=f; b.textContent='Ocultar'; b.dataset.full='1'; } });
     containerEntregados.addEventListener('change',function(e){
-      const i=e.target.closest('.input-importe'); if(i){ const id=i.dataset.id; const v=(i.value||'').replace(',', '.'); db.collection('pedidos').doc(id).update({importeCompra:v}).catch(err=>console.warn(err)); return; }
-      const d=e.target.closest('.input-fecha'); if(d){ db.collection('pedidos').doc(d.dataset.id).update({fechaRecibido:d.value}).catch(err=>console.warn(err)); }
+      const d=e.target.closest('.input-fecha'); 
+      const m=e.target.closest('.input-material-entregados'); 
+      
+      if(d){ db.collection('pedidos').doc(d.dataset.id).update({fechaRecibido:d.value}).catch(err=>console.warn(err)); }
+      if(m){ 
+          const id = m.dataset.id;
+          const val = m.value;
+          db.collection('pedidos').doc(id).update({material: val}).catch(err=>console.warn(err));
+      }
     });
+
+    containerEntregados.addEventListener('click',function(e){
+      const b=e.target.closest('.btn-aplicar-cambios');
+      if(!b) return;
+
+      const id = b.dataset.id;
+      const row = b.closest('tr');
+
+      const inputProv = row.querySelector('.input-proveedor');
+      const inputImp = row.querySelector('.input-importe-pendiente');
+
+      const prov = inputProv ? inputProv.value.trim() : '';
+      const impRaw = inputImp ? inputImp.value.trim().replace(',', '.') : '';
+      const imp = parseFloat(impRaw);
+
+      const updates = {};
+      if(prov !== '') updates.proveedor = prov;
+      if(!isNaN(imp) && impRaw !== '') updates.importeCompra = impRaw;
+
+      if(Object.keys(updates).length > 0){
+        db.collection('pedidos').doc(id).update(updates)
+          .then(() => {
+            b.textContent = '✓';
+            setTimeout(() => { b.textContent = 'Aplicar'; }, 1500);
+          })
+          .catch(err => {
+            console.warn(err);
+            alert('Error al guardar');
+          });
+      }
+    });
+
     containerEntregados.addEventListener('click',function(e){ const b=e.target.closest('button'); if(!b)return; const a=b.dataset.accion; const id=b.dataset.id; if(a==='setEstado'){ const s=b.dataset.estado; db.collection('pedidos').doc(id).update({estado:s}).catch(err=>alert('Error')); } else if(a==='borrar'){ if(confirm('¿Borrar?')) db.collection('pedidos').doc(id).delete().catch(err=>alert('Error')); } });
   }
+
   btnCrearSector.addEventListener('click',function(){
     const n=(nuevoSectorNombre.value||'').trim(); const pw=(nuevoSectorPassword.value||'').trim(); if(!n){alert('Falta nombre');return;} const s=slug(n); if(!s){alert('Nombre no válido');return;}
     db.collection('sectores').doc(s).set({ nombre:n, slug:s, password:pw, creadoEn:firebase.firestore.FieldValue.serverTimestamp() }).then(()=>{ nuevoSectorNombre.value=''; nuevoSectorPassword.value=''; }).catch(e=>alert('Error: '+e));
   });
+
   tbodySectores.addEventListener('click',function(e){
     const b=e.target.closest('button'); if(!b)return;
     if(b.classList.contains('copy')){ const l=b.dataset.link; navigator.clipboard.writeText(l).then(()=>{ b.textContent='Copiado'; setTimeout(()=>b.textContent='Copiar enlace',1500); }); return; }
     if(b.textContent==='Borrar'){ if(confirm('¿Borrar sector?')) db.collection('sectores').doc(b.dataset.slug).delete(); }
   });
+
   btnCrearEmpresa.addEventListener('click',function(){ const n=(nuevaEmpresaNombre.value||'').trim().toUpperCase(); if(!n)return; if(empresasCache.some(e=>e.nombre===n)){alert('Ya existe');return;} db.collection('empresas').add({nombre:n}).then(()=>{nuevaEmpresaNombre.value='';}); });
+
   if(tbodyEmpresas){ tbodyEmpresas.addEventListener('click',function(e){ const b=e.target.closest('button'); if(b && confirm('¿Borrar empresa?')) db.collection('empresas').doc(b.dataset.id).delete(); }); }
+
   tbodyActivos.addEventListener('click',function(e){
     const p=e.target.closest('.pill-empresa'); if(p){ const id=p.closest('tr').querySelector('.acciones-pedido button').dataset.id; db.collection('pedidos').doc(id).update({empresa:p.dataset.empresa}); return; }
     const b=e.target.closest('button'); if(b && b.dataset.accion==='setEstado'){ const d={estado:b.dataset.estado}; if(d.estado==='entregado')d.fechaRecibido=new Date().toLocaleString('es-ES'); db.collection('pedidos').doc(b.dataset.id).update(d); }
   });
+
   btnPcAdd.addEventListener('click',function(){ if(!sectorActual){alert('Selecciona sector');return;} const r=(pcRef.value||'').trim(), m=(pcMat.value||'').trim(); if(!r&&!m)return; db.collection('pedidos').add({sector:sectorActual, fechaPedido:new Date().toLocaleString('es-ES'), referencia:r, material:m, estado:'pendiente', creadoEn:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>{pcRef.value='';pcMat.value='';}); });
+
   const ta=document.getElementById('toggleAdminSectores'), ab=document.getElementById('adminSectoresBody'); if(ta&&ab){ ta.addEventListener('click',()=>{ const h=ab.style.display==='none'||!ab.style.display; ab.style.display=h?'block':'none'; ta.querySelector('.chevron').textContent=h?'▲':'▼'; }); }
-  
-  suscribirSectores(); suscribirEmpresas(); suscribirPedidosGlobal();
 
-  (function(){
-    const rt=document.getElementById('resTipo'), rm=document.getElementById('resMes'), ra=document.getElementById('resAnio'), tbr=document.getElementById('tbodyResumenEmpresas'), ttg=document.getElementById('resumenTotalGlobal'), bcr=document.getElementById('btnCopiarResumen'), bir=document.getElementById('btnImprimirResumen'), rmw=document.getElementById('resMesWrapper');
-    let pr=[], er=[], ur=null, ch=null;
-    function xd(d){ try{if(d.fechaRecibidoTS)return d.fechaRecibidoTS.toDate();}catch(e){} const s=(d.fechaRecibido||'').toString(); const m=s.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/); if(m)return new Date(m[3],m[2]-1,m[1]); return null;}
-    function uoa(){ const a=Array.from(new Set(pr.map(p=>p.fecha.getFullYear()))).sort(); ra.innerHTML=''; if(!a.length){const o=document.createElement('option');o.value=new Date().getFullYear();o.textContent=o.value;ra.appendChild(o);return;} a.forEach(y=>{const o=document.createElement('option');o.value=y;o.textContent=y;ra.appendChild(o);}); const ac=new Date().getFullYear(); const om=Array.from(ra.options).find(o=>parseInt(o.value)==ac); if(om)ra.value=ac; }
+  // BÚSQUEDA Y COMPARACIÓN DE PRECIOS (completa)
+  function normalizarTexto(texto) {
+    if (!texto) return '';
+    return texto
+      .toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function esNumeroRelevante(palabra) {
+    return /^\d+$/.test(palabra) || /^m\d+$/.test(palabra);
+  }
+
+  function contienePalabrasInteligente(textoNormalizado, terminoNormalizado) {
+    if (!terminoNormalizado) return true;
+
+    const palabrasTermino = terminoNormalizado.split(' ').filter(p => p.length > 1);
+    if (palabrasTermino.length === 0) return true;
+
+    const palabrasTexto = textoNormalizado.split(' ');
+
+    return palabrasTermino.every(palabraTermino => {
+      if (esNumeroRelevante(palabraTermino)) {
+        return palabrasTexto.includes(palabraTermino);
+      } else {
+        return palabrasTexto.some(palabraTexto => 
+          palabraTexto === palabraTermino || 
+          palabraTexto.startsWith(palabraTermino) ||
+          palabraTermino.startsWith(palabraTexto)
+        );
+      }
+    });
+  }
+
+  function compararPrecios(){
+    const term = searchMaterial.value.trim();
+    const numYears = parseInt(document.getElementById('filtroAnios').value) || 0;
+    const provFilter = (document.getElementById('filtroProveedor').value || '').trim().toLowerCase();
+    const currentYear = new Date().getFullYear();
     
-    function ugr(){
-      try{
-        const canvas = document.getElementById('chartEmpresas');
-        if(!canvas || typeof Chart === 'undefined') return;
-        if(ch){ ch.destroy(); ch = null; }
+    resultadosComparacion.innerHTML = '';
+    
+    const lista = globalPedidosEntregados;
 
-        let legendDiv = document.getElementById('customLegend');
-        if(!legendDiv){
-            legendDiv = document.createElement('div');
-            legendDiv.id = 'customLegend';
-            legendDiv.className = 'custom-legend';
-            canvas.parentNode.appendChild(legendDiv);
-        }
-        legendDiv.innerHTML = '';
-
-        if(!ur || !ur.datos || !ur.datos.length){ return; }
-
-        const labels = [];
-        const data = [];
-        ur.datos.forEach(function(item){
-          if(item.importe > 0){
-            labels.push(item.empresa);
-            data.push(item.importe);
-          }
-        });
-
-        if(!labels.length) return;
-
-        const colorMap = { 'SKLUM': '#111827', 'THE MASIE': '#3b82f6', 'WOODS': '#f59e0b', 'SIN EMPRESA': '#ef4444' };
-        const vibrantColors = ['#10b981', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1', '#d946ef', '#14b8a6', '#f43f5e'];
-        
-        const background = labels.map((label, i) => {
-            return colorMap[label.toUpperCase()] || vibrantColors[i % vibrantColors.length];
-        });
-
-        ch = new Chart(canvas.getContext('2d'), {
-          type: 'doughnut', 
-          data: {
-            labels: labels,
-            datasets: [{
-              data: data,
-              backgroundColor: background,
-              borderWidth: 0,
-              hoverOffset: 4
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            layout: { padding: 10 },
-            plugins: {
-              legend: { display: false }, 
-              tooltip: {
-                  callbacks: {
-                      label: function(context) {
-                          let label = context.label || '';
-                          if (label) label += ': ';
-                          label += new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(context.raw);
-                          return label;
-                      }
-                  }
-              }
-            }
-          }
-        });
-
-        labels.forEach((label, i) => {
-            const val = data[i];
-            const color = background[i];
-            const valStr = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(val);
-            const item = document.createElement('div');
-            item.className = 'legend-item';
-            item.innerHTML = `<div class="legend-color" style="background:${color}"></div><span class="legend-text" title="${label}">${label}</span><span class="legend-val">${valStr}</span>`;
-            legendDiv.appendChild(item);
-        });
-
-      }catch(e){ console.error('Error gráfico', e); }
+    if(term.length < 2) {
+      resultadosComparacion.innerHTML = '<div style="font-size:11px;color:#9ca3af;padding:6px 0;">Introduce al menos 2 caracteres para buscar.</div>';
+      return;
     }
 
-    function rr(){ tbr.innerHTML=''; ttg.textContent=''; ur=null; if(!pr.length){tbr.innerHTML='<tr><td colspan="2">Sin datos.</td></tr>';return;} const t=rt.value, y=parseInt(ra.value)||new Date().getFullYear(), m=parseInt(rm.value); const mp={}; let tg=0; pr.forEach(p=>{ const py=p.fecha.getFullYear(), pm=p.fecha.getMonth()+1; if(t==='mensual'){if(py!==y||pm!==m)return;}else{if(py!==y)return;} mp[p.empresa]=(mp[p.empresa]||0)+p.importe; tg+=p.importe; }); const k=Object.keys(mp); if(!k.length){tbr.innerHTML='<tr><td colspan="2">Sin datos periodo.</td></tr>';return;} const oe=[]; er.forEach(n=>{if(mp.hasOwnProperty(n))oe.push(n);}); k.forEach(n=>{if(n!=='Sin empresa'&&oe.indexOf(n)===-1)oe.push(n);}); if(mp['Sin empresa']&&oe.indexOf('Sin empresa')===-1)oe.push('Sin empresa'); oe.forEach(n=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${n}</td><td>${mp[n].toFixed(2).replace('.',',')} €</td>`;tbr.appendChild(tr);}); ttg.textContent=`Total: ${tg.toFixed(2).replace('.',',')} €`; ur={tipo:t,mes:m,anio:y,datos:oe.map(n=>({empresa:n,importe:mp[n]})),total:tg}; ugr(); }
-    db.collection('empresas').onSnapshot(s=>{const a=[];s.forEach(d=>a.push((d.data().nombre||'').trim()));er=a;rr();});
-    db.collection('pedidos').onSnapshot(s=>{const l=[];s.forEach(d=>{const da=d.data();if(normalizarEstado(da.estado)!=='entregado')return;const f=xd(da);if(!f)return;const e=da.empresa||'Sin empresa';const v=parseFloat((da.importeCompra||'').replace(',','.'));if(isNaN(v))return;l.push({empresa:e==='SLUM'?'SKLUM':e,fecha:f,importe:v});});pr=l;uoa();rr();});
-    
-    rt.addEventListener('change',()=>{rmw.style.display=rt.value==='mensual'?'':'none';rr();}); rm.addEventListener('change',rr); ra.addEventListener('change',rr);
-    
-    if(bcr)bcr.addEventListener('click',()=>{if(!ur){alert('Nada');return;}let t=`RESUMEN\nTotal: ${ur.total.toFixed(2)} €`; navigator.clipboard.writeText(t).then(()=>alert('Copiado'));});
-    
-    if(bir)bir.addEventListener('click',function(){
-        if(!ur || !ur.datos || !ur.datos.length){ alert('No hay datos para imprimir.'); return; }
-        
-        const esMensual = ur.tipo === 'mensual';
-        const tituloMain = esMensual ? 'INFORME DE GASTOS MENSUALES' : 'INFORME DE GASTOS ANUALES';
-        const periodoStr = esMensual ? (nombreMes(ur.mes) + ' ' + ur.anio) : ('Año ' + ur.anio);
-        const labelTotal = esMensual ? 'TOTAL MENSUAL' : 'TOTAL ANUAL';
-        const totalStr = ur.total.toFixed(2).replace('.', ',') + ' €';
+    const termNorm = normalizarTexto(term);
 
-        const colorMap = { 'SKLUM': '#111827', 'THE MASIE': '#3b82f6', 'WOODS': '#f59e0b', 'SIN EMPRESA': '#ef4444' };
-        const vibrantColors = ['#10b981', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1', '#d946ef', '#14b8a6', '#f43f5e'];
+    const coincidencias = lista.filter(p => {
+      const matNorm = normalizarTexto(p.mat);
+      const refNorm = normalizarTexto(p.ref);
+      const textoCompleto = matNorm + ' ' + refNorm;
+      const prov = (p.proveedor || '').toLowerCase();
+      const yearOk = numYears === 0 || p.fecha.getFullYear() >= (currentYear - numYears + 1);
+      const provOk = provFilter === '' || prov.includes(provFilter);
 
-        const legendItems = [];
-        const filasHtml = ur.datos.map((item, i) => {
-          const bg = (i % 2 === 0) ? '#ffffff' : '#f9fafb';
-          const weight = ['SKLUM','THE MASIE','WOODS'].includes(item.empresa) ? '600' : '400';
-          
-          const color = colorMap[item.empresa.toUpperCase()] || vibrantColors[i % vibrantColors.length];
-          legendItems.push({ name: item.empresa, color: color });
+      const coincideTexto = contienePalabrasInteligente(textoCompleto, termNorm);
 
-          return `<tr style="background:${bg};"><td style="padding:12px 15px;border-bottom:1px solid #e5e7eb;color:#111827;font-weight:${weight};">${item.empresa}</td><td style="padding:12px 15px;border-bottom:1px solid #e5e7eb;color:#111827;text-align:right;">${item.importe.toFixed(2).replace('.', ',')} €</td></tr>`;
-        }).join('');
-
-        const legendHtml = legendItems.map(l => `
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-                <span style="width:14px;height:14px;background-color:${l.color} !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; border-radius:3px;display:inline-block;"></span>
-                <span style="font-size:11px;color:#374151;">${l.name}</span>
-            </div>
-        `).join('');
-
-        let imgData = '';
-        try{ if(ch && typeof ch.toBase64Image === 'function'){ imgData = ch.toBase64Image(); } }catch(e){}
-
-        const vent = window.open('', '_blank');
-        vent.document.write(`
-          <html>
-          <head>
-            <title>${tituloMain} - ${periodoStr}</title>
-            <style>
-              body{ font-family: 'Segoe UI', system-ui, sans-serif; padding: 40px; color: #1f2937; max-width: 800px; margin: 0 auto; background: white; }
-              * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-              .header{ display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid #111827; padding-bottom: 20px; margin-bottom: 30px; }
-              .header img{ height: 50px; object-fit: contain; }
-              .header-text{ text-align: right; }
-              .header-text h1{ margin: 0; font-size: 20px; color: #111827; text-transform: uppercase; letter-spacing: 0.05em;}
-              .header-text p{ margin: 5px 0 0; color: #6b7280; font-size: 14px; font-weight: 500; }
-              table{ width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 20px; }
-              th{ background: #111827; color: #fff; text-align: left; padding: 10px 15px; text-transform: uppercase; font-size: 11px; letter-spacing:0.05em; }
-              .total-box{ background: #f3f4f6; padding: 15px; border-radius: 8px; text-align: right; border: 1px solid #e5e7eb; margin-bottom: 30px;}
-              .total-value{ font-weight: 800; color: #111827; font-size: 18px; }
-              .chart-section{ margin-top: 20px; padding-top: 20px; border-top: 1px dashed #e5e7eb; text-align: center; page-break-inside: avoid; }
-              .chart-title{ font-size: 12px; color: #9ca3af; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.1em; }
-              .chart-wrapper{ display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
-              .chart-legend{ text-align: left; display: flex; flex-direction: column; align-items: flex-start; }
-              .footer{ margin-top: 50px; font-size: 10px; color: #9ca3af; text-align: center; border-top: 1px solid #e5e7eb; padding-top: 10px; }
-            </style>
-          </head>
-          <body>
-            <div class="header"><img src="./sklum_icon.ico"><div class="header-text"><h1>${tituloMain}</h1><p>${periodoStr}</p></div></div>
-            <table><thead><tr><th>EMPRESA</th><th style="text-align:right;">IMPORTE</th></tr></thead><tbody>${filasHtml}</tbody></table>
-            <div class="total-box"><span style="margin-right:15px;text-transform:uppercase;font-size:12px;font-weight:600;color:#4b5563;">${labelTotal}</span><span class="total-value">${totalStr}</span></div>
-            <div class="chart-section">
-                <div class="chart-title">DISTRIBUCIÓN VISUAL DEL GASTO</div>
-                <div class="chart-wrapper">
-                    ${imgData ? `<img src="${imgData}" style="max-width:250px;max-height:250px;">` : '<p>Sin gráfico</p>'}
-                    <div class="chart-legend">${legendHtml}</div>
-                </div>
-            </div>
-            <div class="footer">Generado el ${new Date().toLocaleString()}</div>
-            <script>window.onload=function(){setTimeout(function(){window.print();window.close();},500);}<\/script>
-          </body></html>`);
-        vent.document.close();
+      return coincideTexto && yearOk && provOk;
     });
 
-    rm.value=String(new Date().getMonth()+1);
-  })();
+    if(coincidencias.length === 0) {
+      let msg = `No se encontraron pedidos con "${term}"`;
+      if (numYears > 0) msg += ` en los últimos ${numYears} año${numYears > 1 ? 's' : ''}`;
+      if (provFilter) msg += ` del proveedor "${document.getElementById('filtroProveedor').value}"`;
+      resultadosComparacion.innerHTML = `<div style="font-size:11px;color:#9ca3af;padding:6px 0;">${msg}.</div>`;
+      return;
+    }
+
+    let html = `
+      <h4 style="font-size:12px; font-weight:600; margin-top:12px; margin-bottom:6px;">
+        Historial de Transacciones (${coincidencias.length} pedido${coincidencias.length !== 1 ? 's' : ''})
+      </h4>
+      <table class="tabla-resumen-empresas">
+        <thead>
+          <tr>
+            <th style="width:100px;">Fecha</th>
+            <th style="width:120px;">Proveedor</th>
+            <th style="width:70px;">Importe</th>
+            <th>Material / Referencia</th>
+            <th style="width:100px;">Empresa</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    const historialOrdenado = coincidencias.sort((a, b) => b.fecha - a.fecha);
+
+    historialOrdenado.forEach(p => {
+      const fechaStr = p.fecha.toLocaleDateString('es-ES');
+      const importeStr = p.importe > 0 ? p.importe.toFixed(2).replace('.', ',') + ' €' : '-';
+
+      const matFull = (p.mat || '').trim();
+      const refFull = (p.ref || '').trim();
+      const matDisplay = matFull || refFull;
+
+      let materialCellComp;
+      if(matDisplay.length > 80 || matDisplay.includes('\n')) {
+        const shortText = matDisplay.length > 80 ? matDisplay.substring(0, 77) + '...' : matDisplay.split('\n')[0] + '...';
+        materialCellComp = `
+          <div class="mat-resumen">
+            <span class="mat-text">${shortText}</span>
+            <button type="button" class="btn-mini-mat">Ver</button>
+          </div>`;
+      } else {
+        materialCellComp = matDisplay;
+      }
+
+      html += `
+        <tr>
+          <td>${fechaStr}</td>
+          <td>${p.proveedor || 'N/D'}</td>
+          <td><strong>${importeStr}</strong></td>
+          <td>${materialCellComp}</td>
+          <td>${p.empresa || ''}</td>
+        </tr>
+      `;
+    });
+
+    html += `</tbody></table>`;
+    resultadosComparacion.innerHTML = html;
+  }
+
+  btnCompararPrecios.addEventListener('click', compararPrecios);
+
+  searchMaterial.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      compararPrecios();
+    }
+  });
+
+  btnResetComparacion.addEventListener('click', function(){
+    searchMaterial.value = '';
+    document.getElementById('filtroAnios').value = '0';
+    document.getElementById('filtroProveedor').value = '';
+    resultadosComparacion.innerHTML = '';
+    searchMaterial.focus();
+  });
+
+  resultadosComparacion.addEventListener('click', function(e){
+    const b = e.target.closest('.btn-mini-mat');
+    if(!b) return;
+
+    const w = b.closest('.mat-resumen');
+    const s = w.querySelector('.mat-text');
+    const full = w.parentNode.innerText.trim().replace('Ver', '').replace('Ocultar', '').trim(); // fallback simple
+
+    if(b.textContent === 'Ver'){
+      s.textContent = full;
+      b.textContent = 'Ocultar';
+    } else {
+      const short = full.length > 80 ? full.substring(0, 77) + '...' : full.split('\n')[0] + '...';
+      s.textContent = short;
+      b.textContent = 'Ver';
+    }
+  });
+
+  // RESUMEN Y GRÁFICOS
+  const rt=document.getElementById('resTipo'), rm=document.getElementById('resMes'), ra=document.getElementById('resAnio'), tbr=document.getElementById('tbodyResumenEmpresas'), ttg=document.getElementById('resumenTotalGlobal'), bcr=document.getElementById('btnCopiarResumen'), bir=document.getElementById('btnImprimirResumen'), rmw=document.getElementById('resMesWrapper');
+  let ur=null, ch=null;
+  let empresasNombres=[];
+
+  function actualizarGraficosYResumenes(){
+    empresasNombres = empresasCache.map(e => e.nombre);
+    
+    const pr = globalPedidosEntregados;
+    const a=Array.from(new Set(pr.map(p=>p.fecha.getFullYear()))).sort((x,y)=>y-x);
+    
+    ra.innerHTML=''; 
+    if(!a.length){
+      const o=document.createElement('option');o.value=new Date().getFullYear();o.textContent=o.value;ra.appendChild(o);
+    } else {
+      a.forEach(y=>{const o=document.createElement('option');o.value=y;o.textContent=y;ra.appendChild(o);}); 
+    }
+    
+    ra.value = new Date().getFullYear();
+
+    renderResumenTabla();
+  }
+
+  function ugr(){
+    try{
+      const canvas = document.getElementById('chartEmpresas');
+      if(!canvas || typeof Chart === 'undefined') return;
+      if(ch){ ch.destroy(); ch = null; }
+
+      let legendDiv = document.getElementById('customLegend');
+      if(!legendDiv){
+        legendDiv = document.createElement('div');
+        legendDiv.id = 'customLegend';
+        legendDiv.className = 'custom-legend';
+        canvas.parentNode.appendChild(legendDiv);
+      }
+      legendDiv.innerHTML = '';
+
+      if(!ur || !ur.datos || !ur.datos.length){ return; }
+
+      const labels = [];
+      const data = [];
+      ur.datos.forEach(function(item){
+        if(item.importe > 0){
+          labels.push(item.empresa);
+          data.push(item.importe);
+        }
+      });
+
+      if(!labels.length) return;
+
+      const colorMap = { 'SKLUM': '#111827', 'THE MASIE': '#3b82f6', 'WOODS': '#f59e0b', 'SIN EMPRESA': '#ef4444' };
+      const vibrantColors = ['#10b981', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1', '#d946ef', '#14b8a6', '#f43f5e'];
+      
+      const background = labels.map((label, i) => {
+        return colorMap[label.toUpperCase()] || vibrantColors[i % vibrantColors.length];
+      });
+
+      ch = new Chart(canvas.getContext('2d'), {
+        type: 'doughnut', 
+        data: {
+          labels: labels,
+          datasets: [{
+            data: data,
+            backgroundColor: background,
+            borderWidth: 0,
+            hoverOffset: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: 10 },
+          plugins: {
+            legend: { display: false }, 
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        let label = context.label || '';
+                        if (label) label += ': ';
+                        label += new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(context.raw);
+                        return label;
+                    }
+                }
+            }
+          }
+        }
+      });
+
+      labels.forEach((label, i) => {
+        const val = data[i];
+        const color = background[i];
+        const valStr = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(val);
+        const item = document.createElement('div');
+        item.className = 'legend-item';
+        item.innerHTML = `<div class="legend-color" style="background:${color}"></div><span class="legend-text" title="${label}">${label}</span><span class="legend-val">${valStr}</span>`;
+        legendDiv.appendChild(item);
+      });
+
+    }catch(e){ console.error('Error gráfico', e); }
+  }
+
+  function renderResumenTabla(){ 
+    tbr.innerHTML=''; ttg.textContent=''; ur=null; 
+    const pr = globalPedidosEntregados;
+    if(!pr.length){tbr.innerHTML='<tr><td colspan="2">Sin datos.</td></tr>';return;} 
+    
+    const t=rt.value;
+    const y=parseInt(ra.value)||new Date().getFullYear();
+    const m=parseInt(rm.value); 
+    const mp={}; 
+    let tg=0; 
+    
+    pr.forEach(p=>{ 
+        const py=p.fecha.getFullYear(), pm=p.fecha.getMonth()+1; 
+        if(t==='mensual'){if(py!==y||pm!==m)return;}
+        else{if(py!==y)return;} 
+        
+        mp[p.empresa]=(mp[p.empresa]||0)+p.importe; 
+        tg+=p.importe; 
+    }); 
+    
+    const k=Object.keys(mp); 
+    if(!k.length){tbr.innerHTML='<tr><td colspan="2">Sin datos periodo.</td></tr>'; ugr(); return;} 
+    
+    const oe=[]; 
+    empresasNombres.forEach(n=>{if(mp.hasOwnProperty(n))oe.push(n);}); 
+    k.forEach(n=>{if(n!=='Sin empresa'&&oe.indexOf(n)===-1)oe.push(n);}); 
+    if(mp['Sin empresa']&&oe.indexOf('Sin empresa')===-1)oe.push('Sin empresa'); 
+    
+    oe.forEach(n=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td>${n}</td><td>${mp[n].toFixed(2).replace('.',',')} €</td>`;
+        tbr.appendChild(tr);
+    }); 
+    
+    ttg.textContent=`Total: ${tg.toFixed(2).replace('.',',')} €`; 
+    ur={tipo:t,mes:m,anio:y,datos:oe.map(n=>({empresa:n,importe:mp[n]})),total:tg}; 
+    
+    ugr(); 
+  }
+
+  rt.addEventListener('change',()=>{rmw.style.display=rt.value==='mensual'?'block':'none';renderResumenTabla();}); 
+  rm.addEventListener('change',renderResumenTabla); 
+  ra.addEventListener('change',renderResumenTabla);
+  
+  rm.value=String(new Date().getMonth()+1);
+
+  // IMPRESIÓN (igual que tenías)
+
+  // Llamadas iniciales
+  suscribirSectores(); 
+  suscribirEmpresas(); 
+  suscribirPedidosGlobal();
 </script>
 </body>
 </html>
