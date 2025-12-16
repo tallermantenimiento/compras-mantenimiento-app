@@ -67,7 +67,7 @@
     .tabla-pedidos-activos th:nth-child(7){width:140px;}
 
     /* ==========================================================================
-       ESTILOS DE IMPRESIÓN - DISEÑO EXACTO SEGÚN LA FOTO
+       ESTILOS DE IMPRESIÓN
        ========================================================================== */
     @media print {
       @page { margin: 1cm; size: A4; }
@@ -166,7 +166,7 @@
         font-variant-numeric: tabular-nums; 
       }
 
-      /* CAJA TOTAL - PERFECTAMENTE A LA DERECHA */
+      /* CAJA TOTAL */
       .print-total-box {
         background-color: #e5e7eb;
         border-radius: 10px;
@@ -487,16 +487,28 @@
     </div>
     <section class="panel panel-empresas">
       <h2>Gestión de empresas</h2>
-      <div class="row">
-        <div class="field" style="flex:2;"><label for="nuevaEmpresaNombre">Nombre de empresa</label><input id="nuevaEmpresaNombre" type="text" placeholder="Ej: WOODS, SKLUM…"></div>
-        <div class="field" style="flex:0 0 auto;"><button class="btn-main" id="btnCrearEmpresa">Crear empresa</button></div>
+      
+      <div class="admin-sectores-header" id="toggleAdminEmpresas" style="margin-bottom:8px;">
+        <span>⚙️ Administrar / Crear empresas</span>
+        <span class="chevron">▼</span>
       </div>
-      <div class="row empresas-layout" style="margin-top:8px;">
-        <div class="empresas-tabla"><table class="tabla-empresas"><thead><tr><th>Empresa</th><th>Total importe</th><th>Acciones</th></tr></thead><tbody id="tbodyEmpresas"></tbody></table></div>
-        <div class="empresas-chart">
+
+      <div id="adminEmpresasBody" style="display:none; border-bottom:1px solid var(--border); padding-bottom:14px; margin-bottom:14px;">
+        <div class="row">
+          <div class="field" style="flex:2;"><label for="nuevaEmpresaNombre">Nombre de empresa</label><input id="nuevaEmpresaNombre" type="text" placeholder="Ej: WOODS, SKLUM…"></div>
+          <div class="field" style="flex:0 0 auto;"><button class="btn-main" id="btnCrearEmpresa">Crear empresa</button></div>
+        </div>
+        <div style="margin-top:8px;">
+          <table class="tabla-empresas"><thead><tr><th>Empresa</th><th>Total importe</th><th>Acciones</th></tr></thead><tbody id="tbodyEmpresas"></tbody></table>
+        </div>
+      </div>
+      
+      <div class="row" style="justify-content:center; margin-bottom:8px;">
+        <div class="empresas-chart" style="width:100%; display:flex; justify-content:center;">
           <canvas id="chartEmpresas"></canvas>
         </div>
       </div>
+
       <div class="resumen-empresas">
         <h3>Resumen de gastos</h3>
         <div class="row resumen-controles">
@@ -1021,6 +1033,17 @@
 
   const ta=document.getElementById('toggleAdminSectores'), ab=document.getElementById('adminSectoresBody'); if(ta&&ab){ ta.addEventListener('click',()=>{ const h=ab.style.display==='none'||!ab.style.display; ab.style.display=h?'block':'none'; ta.querySelector('.chevron').textContent=h?'▲':'▼'; }); }
 
+  // NUEVA LÓGICA: TOGGLE ADMINISTRAR EMPRESAS
+  const tae = document.getElementById('toggleAdminEmpresas');
+  const abe = document.getElementById('adminEmpresasBody');
+  if(tae && abe){
+      tae.addEventListener('click', ()=>{
+          const isHidden = abe.style.display === 'none';
+          abe.style.display = isHidden ? 'block' : 'none';
+          tae.querySelector('.chevron').textContent = isHidden ? '▲' : '▼';
+      });
+  }
+
   // BÚSQUEDA Y COMPARACIÓN DE PRECIOS (completa)
   function normalizarTexto(texto) {
     if (!texto) return '';
@@ -1035,11 +1058,6 @@
   
 
 // === EXTRACCIÓN ESTRICTA DE MEDIDAS (SOLO PARA COMPARACIÓN DE PRECIOS) ===
-// Objetivo: tolerancia flexible en texto, pero CERO tolerancia en:
-// - Métrica (M8 vs M10)
-// - Longitud (x10 vs x12)
-// - Cantidad (100 und vs 500 und). La cantidad se detecta solo si está explícita como:
-//   "100 und/uds/unidades/pcs/piezas" o "caja/pack/paquete/bolsa 100".
 function extraerMedidasClave(texto) {
   const t = (texto || '').toLowerCase();
 
@@ -1377,8 +1395,27 @@ const prov = (p.proveedor || '').toLowerCase();
   ra.addEventListener('change',renderResumenTabla);
   
   rm.value=String(new Date().getMonth()+1);
+  
+  // NUEVA LÓGICA: BOTÓN COPIAR RESUMEN ARREGLADO
+  if(bcr){
+      bcr.addEventListener('click', function(){
+        if(!ur || !ur.datos || !ur.datos.length) return;
+        
+        let texto = `RESUMEN GASTOS ${ur.tipo.toUpperCase()} (${ur.tipo==='mensual'?nombreMes(ur.mes):''} ${ur.anio})\n\n`;
+        ur.datos.forEach(d => {
+            texto += `${d.empresa}: ${d.importe.toFixed(2).replace('.',',')} €\n`;
+        });
+        texto += `\nTOTAL: ${ur.total.toFixed(2).replace('.',',')} €`;
 
-  // LOGICA DEL BOTON IMPRIMIR ACTUALIZADA AL DISEÑO DE LA FOTO
+        navigator.clipboard.writeText(texto).then(()=>{
+            const original = bcr.textContent;
+            bcr.textContent = '¡Copiado!';
+            setTimeout(()=> bcr.textContent = original, 2000);
+        }).catch(err => console.error('Error al copiar: ', err));
+      });
+  }
+
+  // LOGICA DEL BOTON IMPRIMIR
   if (bir) {
     bir.addEventListener('click', function () {
       const printArea = document.getElementById('print-area');
