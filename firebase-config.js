@@ -1,17 +1,17 @@
-// Configuración Firebase para Compras Mantenimiento
-// Usada tanto por el panel (PC) como por la app (responsables).
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
+// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCjmIiEt91ORnjW6lNrIkEl6rGG-uxIqgk",
-  authDomain: "compras-mantenimiento.firebaseapp.com",
-  projectId: "compras-mantenimiento",
-  storageBucket: "compras-mantenimiento.firebasestorage.app",
-  messagingSenderId: "520661805072",
-  appId: "1:520661805072:web:1a3068244aa06ee9cb8295"
+  apiKey: "AIzaSyBVCaP1DJqkt-kbPU9xUvKI-YgXIB32UF8",
+  authDomain: "compras-mantenimiento-app.firebaseapp.com",
+  projectId: "compras-mantenimiento-app",
+  storageBucket: "compras-mantenimiento-app.firebasestorage.app",
+  messagingSenderId: "421706450966",
+  appId: "1:421706450966:web:38ed25089d8c883079cd37"
 };
 
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
-
-const db = firebase.firestore();
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
