@@ -333,6 +333,7 @@
     .estado-pedido{background:#e5e7eb;border-color:#cbd5e1;color:#374151;}
     .estado-recibido{background:#dbeafe;border-color:#60a5fa;color:#1d4ed8;}
     .estado-entregado{background:#dcfce7;border-color:#22c55e;color:#166534;}
+    .estado-anulado{background:#fee2e2;border-color:#ef4444;color:#991b1b;}
     
     .fila-entregada{background:#e6ffe6 !important;} 
     .empresa-pills{display:flex;gap:4px;flex-wrap:wrap;}
@@ -640,9 +641,9 @@
 
   function slug(str){ return (str || '').toString().trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,''); }
   function prettySector(id){ if(!id) return 'SIN SECTOR'; return id.replace(/-/g,' ').toUpperCase(); }
-  function normalizarEstado(r){ if(!r||r==='pendiente') return 'pendiente'; if(r==='pedido')return 'pedido'; if(r==='recibido')return 'recibido'; if(r==='entregado')return 'entregado'; return r;}
-  function estadoClase(e){ if(e==='pendiente')return 'estado-pendiente'; if(e==='pedido')return 'estado-pedido'; if(e==='recibido')return 'estado-recibido'; if(e==='entregado')return 'estado-entregado'; return 'estado-pendiente';}
-  function estadoTexto(e){ if(e==='pendiente')return 'Pendiente'; if(e==='pedido')return 'Pedido'; if(e==='recibido')return 'En taller'; if(e==='entregado')return 'Entregado'; return 'Pendiente';}
+  function normalizarEstado(r){ if(!r||r==='pendiente') return 'pendiente'; if(r==='pedido')return 'pedido'; if(r==='recibido')return 'recibido'; if(r==='entregado')return 'entregado'; if(r==='anulado')return 'anulado'; return r;}
+  function estadoClase(e){ if(e==='pendiente')return 'estado-pendiente'; if(e==='pedido')return 'estado-pedido'; if(e==='recibido')return 'estado-recibido'; if(e==='entregado')return 'estado-entregado'; if(e==='anulado')return 'estado-anulado'; return 'estado-pendiente';}
+  function estadoTexto(e){ if(e==='pendiente')return 'Pendiente'; if(e==='pedido')return 'Pedido'; if(e==='recibido')return 'En taller'; if(e==='entregado')return 'Entregado'; if(e==='anulado')return 'Anulado'; return 'Pendiente';}
   function nombreMes(n){ const i=parseInt(n,10); const m=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']; return m[i-1]||'Mes '+n;}
   function parseFecha(d){ 
     try{if(d.fechaRecibidoTS)return d.fechaRecibidoTS.toDate();}catch(e){} 
@@ -704,7 +705,7 @@
         let emp=d.empresa&&d.empresa.trim()?d.empresa.trim():'Sin empresa';
         if(emp==='SLUM')emp='SKLUM';
 
-        if(est!=='entregado') c[sec]=(c[sec]||0)+1;
+        if(est!=='entregado' && est!=='anulado') c[sec]=(c[sec]||0)+1;
 
         if(est==='entregado'){
           const r=(d.importeCompra||'').toString().replace(',','.');
@@ -843,7 +844,7 @@
             </div>
         `;
 
-        tr.innerHTML=`<td>${fm}</td><td>${p.ref||''}</td><td>${materialCell}</td><td>${cellImpProv}</td><td><div class="empresa-pills" data-id="${p.id}">${eh}</div></td><td><span class="estado-pill ${cl}"><span class="dot"></span>${tx}</span></td><td class="acciones-pedido"><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="pendiente" data-id="${p.id}">Pendiente</button><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="pedido" data-id="${p.id}">Pedido</button><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="recibido" data-id="${p.id}">En taller</button><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="entregado" data-id="${p.id}">Entregado</button></td>`;
+        tr.innerHTML=`<td>${fm}</td><td>${p.ref||''}</td><td>${materialCell}</td><td>${cellImpProv}</td><td><div class="empresa-pills" data-id="${p.id}">${eh}</div></td><td><span class="estado-pill ${cl}"><span class="dot"></span>${tx}</span></td><td class="acciones-pedido"><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="pendiente" data-id="${p.id}">Pendiente</button><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="pedido" data-id="${p.id}">Pedido</button><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="recibido" data-id="${p.id}">En taller</button><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="entregado" data-id="${p.id}">Entregado</button><button class="btn-sm danger" data-accion="anularPedido" data-id="${p.id}">Anular pedido</button></td>`;
         const b=tr.querySelectorAll('.estado-btn'); b.forEach(bt=>{if(bt.dataset.estado===p.estado)bt.classList.add('activo');});
         if(p.empresa){ const c=tr.querySelector('.empresa-pills'); if(c){ const bt=c.querySelector(`.pill-empresa[data-empresa="${p.empresa}"]`); if(bt) bt.classList.add('activa'); } }
         tbodyActivos.appendChild(tr);
@@ -1035,7 +1036,19 @@
 
   tbodyActivos.addEventListener('click',function(e){
     const p=e.target.closest('.pill-empresa'); if(p){ const id=p.closest('tr').querySelector('.acciones-pedido button').dataset.id; db.collection('pedidos').doc(id).update({empresa:p.dataset.empresa}); return; }
-    const b=e.target.closest('button'); if(b && b.dataset.accion==='setEstado'){ const d={estado:b.dataset.estado}; if(d.estado==='entregado')d.fechaRecibido=new Date().toLocaleString('es-ES'); db.collection('pedidos').doc(b.dataset.id).update(d); }
+    const b=e.target.closest('button');
+    if(!b) return;
+    if(b.dataset.accion==='anularPedido'){
+      if(confirm('¿Anular este pedido? Se borrará definitivamente.')){
+        db.collection('pedidos').doc(b.dataset.id).delete().catch(err=>alert('Error al anular pedido'));
+      }
+      return;
+    }
+    if(b.dataset.accion==='setEstado'){
+      const d={estado:b.dataset.estado};
+      if(d.estado==='entregado')d.fechaRecibido=new Date().toLocaleString('es-ES');
+      db.collection('pedidos').doc(b.dataset.id).update(d);
+    }
   });
 
   btnPcAdd.addEventListener('click',function(){ if(!sectorActual){alert('Selecciona sector');return;} const r=(pcRef.value||'').trim(), m=(pcMat.value||'').trim(); if(!r&&!m)return; db.collection('pedidos').add({sector:sectorActual, fechaPedido:new Date().toLocaleString('es-ES'), referencia:r, material:m, estado:'pendiente', creadoEn:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>{pcRef.value='';pcMat.value='';}); });
