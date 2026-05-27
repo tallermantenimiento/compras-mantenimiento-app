@@ -333,7 +333,6 @@
     .estado-pedido{background:#e5e7eb;border-color:#cbd5e1;color:#374151;}
     .estado-recibido{background:#dbeafe;border-color:#60a5fa;color:#1d4ed8;}
     .estado-entregado{background:#dcfce7;border-color:#22c55e;color:#166534;}
-    .estado-anulado{background:#fee2e2;border-color:#ef4444;color:#991b1b;}
     
     .fila-entregada{background:#e6ffe6 !important;} 
     .empresa-pills{display:flex;gap:4px;flex-wrap:wrap;}
@@ -416,20 +415,9 @@
     .modal-parcial-actions{display:flex;justify-content:flex-end;gap:8px;padding:0 16px 16px;flex-wrap:wrap;}
     .parcial-note-pill{
       display:inline-flex;margin-top:4px;font-size:10px;padding:2px 7px;border-radius:999px;
-      background:#fffbeb;border:1px solid #fbbf24;color:#92400e;font-weight:700;white-space:nowrap;
+      background:#fffbeb;border:1px solid #fbbf24;color:#92400e;font-weight:700;white-space:nowrap;cursor:pointer;
     }
-    .btn-ver-faltante{cursor:pointer;font-family:inherit;}
-
-
-    .estado-btn.parcial-activo{
-      background:#2563eb !important;
-      color:#fff !important;
-      border-color:#2563eb !important;
-    }
-
-
-    .estado-btn.activo[data-estado="recibido"],
-    .estado-btn.activo[data-local-estado="recibido"]{
+    .estado-btn.activo[data-estado="recibido"]{
       background:#2563eb !important;
       color:#fff !important;
       border-color:#2563eb !important;
@@ -621,7 +609,7 @@
     <div class="modal-parcial-body">
       <div class="modal-parcial-meta" id="parcialMeta"></div>
       <label for="parcialComentario">Anotar lo que falta</label>
-      <textarea id="parcialComentario" placeholder="Ej: recibido parcial, faltan 2 unidades, falta una barra, pendiente de proveedor..."></textarea>
+      <textarea id="parcialComentario" placeholder="Ej: faltan 2 unidades, falta una barra, pendiente de proveedor..."></textarea>
       <div class="hint">Este comentario quedará asociado al pedido mientras esté como Entregado parcial. Al pulsar Entregado se eliminará automáticamente.</div>
     </div>
     <div class="modal-parcial-actions">
@@ -702,9 +690,9 @@
 
   function slug(str){ return (str || '').toString().trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,''); }
   function prettySector(id){ if(!id) return 'SIN SECTOR'; return id.replace(/-/g,' ').toUpperCase(); }
-  function normalizarEstado(r){ if(!r||r==='pendiente') return 'pendiente'; if(r==='pedido')return 'pedido'; if(r==='recibido')return 'recibido'; if(r==='entregado')return 'entregado'; if(r==='anulado')return 'anulado'; return r;}
-  function estadoClase(e){ if(e==='pendiente')return 'estado-pendiente'; if(e==='pedido')return 'estado-pedido'; if(e==='recibido')return 'estado-recibido'; if(e==='entregado')return 'estado-entregado'; if(e==='anulado')return 'estado-anulado'; return 'estado-pendiente';}
-  function estadoTexto(e){ if(e==='pendiente')return 'Pendiente'; if(e==='pedido')return 'Pedido'; if(e==='recibido')return 'Entregado parcial'; if(e==='entregado')return 'Entregado'; if(e==='anulado')return 'Anulado'; return 'Pendiente';}
+  function normalizarEstado(r){ if(!r||r==='pendiente') return 'pendiente'; if(r==='pedido')return 'pedido'; if(r==='recibido')return 'recibido'; if(r==='entregado')return 'entregado'; return r;}
+  function estadoClase(e){ if(e==='pendiente')return 'estado-pendiente'; if(e==='pedido')return 'estado-pedido'; if(e==='recibido')return 'estado-recibido'; if(e==='entregado')return 'estado-entregado'; return 'estado-pendiente';}
+  function estadoTexto(e){ if(e==='pendiente')return 'Pendiente'; if(e==='pedido')return 'Pedido'; if(e==='recibido')return 'Entregado parcial'; if(e==='entregado')return 'Entregado'; return 'Pendiente';}
   function nombreMes(n){ const i=parseInt(n,10); const m=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']; return m[i-1]||'Mes '+n;}
   function parseFecha(d){ 
     try{if(d.fechaRecibidoTS)return d.fechaRecibidoTS.toDate();}catch(e){} 
@@ -742,8 +730,10 @@
   let globalPedidosEntregados = [];
 
 
-  function escapeHtmlSimple(v){
-    return (v == null ? '' : String(v)).replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]; });
+  function htmlAttr(v){
+    return (v == null ? '' : String(v)).replace(/[&<>"']/g, function(m){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];
+    });
   }
 
   function abrirDialogoParcial(id, ref, mat, comentarioActual){
@@ -751,10 +741,12 @@
     const modal = document.getElementById('modalParcial');
     const meta = document.getElementById('parcialMeta');
     const txt = document.getElementById('parcialComentario');
+
     if(meta){
-      meta.innerHTML = '<strong>' + escapeHtmlSimple(ref || '') + '</strong><br>' + escapeHtmlSimple((mat || '').replace(/\s+/g,' ').slice(0,220));
+      meta.innerHTML = '<strong>' + htmlAttr(ref || '') + '</strong><br>' + htmlAttr((mat || '').replace(/\s+/g,' ').slice(0,220));
     }
     if(txt) txt.value = comentarioActual || '';
+
     if(modal){
       modal.classList.add('open');
       modal.setAttribute('aria-hidden','false');
@@ -773,17 +765,22 @@
 
   function guardarDialogoParcial(){
     if(!pedidoParcialActualId) return;
+
     const txt = document.getElementById('parcialComentario');
     const comentario = txt ? txt.value.trim() : '';
+
     if(!comentario){
       alert('Anota qué falta antes de guardar la entrega parcial.');
       return;
     }
+
     db.collection('pedidos').doc(pedidoParcialActualId).update({
       estado:'recibido',
       comentarioParcial: comentario,
       fechaParcial: new Date().toLocaleString('es-ES')
-    }).then(cerrarDialogoParcial).catch(function(err){ alert('Error al guardar entrega parcial: ' + err); });
+    }).then(cerrarDialogoParcial).catch(function(err){
+      alert('Error al guardar entrega parcial: ' + err);
+    });
   }
 
   function suscribirSectores(){
@@ -812,7 +809,7 @@
         let emp=d.empresa&&d.empresa.trim()?d.empresa.trim():'Sin empresa';
         if(emp==='SLUM')emp='SKLUM';
 
-        if(est!=='entregado' && est!=='anulado') c[sec]=(c[sec]||0)+1;
+        if(est!=='entregado') c[sec]=(c[sec]||0)+1;
 
         if(est==='entregado'){
           const r=(d.importeCompra||'').toString().replace(',','.');
@@ -951,7 +948,7 @@
             </div>
         `;
 
-        tr.innerHTML=`<td>${fm}</td><td>${p.ref||''}</td><td>${materialCell}</td><td>${cellImpProv}</td><td><div class="empresa-pills" data-id="${p.id}">${eh}</div></td><td>${p.estado==='recibido' && p.comentarioParcial?'<button type="button" class="parcial-note-pill btn-ver-faltante" data-accion="abrirParcial" data-estado="recibido" data-id="'+p.id+'" data-ref="'+escapeHtmlSimple(p.ref||'')+'" data-mat="'+escapeHtmlSimple(p.mat||'')+'" data-comentario="'+escapeHtmlSimple(p.comentarioParcial||'')+'">Ver faltante</button>':'<span class="estado-pill '+cl+'"><span class="dot"></span>'+tx+'</span>'}</td><td class="acciones-pedido"><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="pendiente" data-id="${p.id}">Pendiente</button><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="pedido" data-id="${p.id}">Pedido</button><button class="btn-sm estado-btn ${p.estado===\'recibido\'?\'parcial-activo\':\'\'}" data-accion="abrirParcial" data-estado="recibido" data-id="${p.id}" data-ref="${escapeHtmlSimple(p.ref||\'\')}" data-mat="${escapeHtmlSimple(p.mat||\'\')}" data-comentario="${escapeHtmlSimple(p.comentarioParcial||\'\')}">Entregado parcial</button><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="entregado" data-id="${p.id}">Entregado</button><button class="btn-sm danger" data-accion="anularPedido" data-id="${p.id}">Anular pedido</button></td>`;
+        tr.innerHTML=`<td>${fm}</td><td>${p.ref||''}</td><td>${materialCell}</td><td>${cellImpProv}</td><td><div class="empresa-pills" data-id="${p.id}">${eh}</div></td><td>${p.estado==="recibido" && p.comentarioParcial ? '<button type="button" class="parcial-note-pill" data-accion="abrirParcial" data-estado="recibido" data-id="'+p.id+'" data-ref="'+htmlAttr(p.ref||'')+'" data-mat="'+htmlAttr(p.mat||'')+'" data-comentario="'+htmlAttr(p.comentarioParcial||'')+'">Ver faltante</button>' : '<span class="estado-pill '+cl+'"><span class="dot"></span>'+tx+'</span>'}</td><td class="acciones-pedido"><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="pendiente" data-id="${p.id}">Pendiente</button><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="pedido" data-id="${p.id}">Pedido</button><button class="btn-sm estado-btn" data-accion="abrirParcial" data-estado="recibido" data-id="${p.id}" data-ref="${htmlAttr(p.ref||'')}" data-mat="${htmlAttr(p.mat||'')}" data-comentario="${htmlAttr(p.comentarioParcial||'')}">Entregado parcial</button><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="entregado" data-id="${p.id}">Entregado</button></td>`;
         const b=tr.querySelectorAll('.estado-btn'); b.forEach(bt=>{if(bt.dataset.estado===p.estado)bt.classList.add('activo');});
         if(p.empresa){ const c=tr.querySelector('.empresa-pills'); if(c){ const bt=c.querySelector(`.pill-empresa[data-empresa="${p.empresa}"]`); if(bt) bt.classList.add('activa'); } }
         tbodyActivos.appendChild(tr);
