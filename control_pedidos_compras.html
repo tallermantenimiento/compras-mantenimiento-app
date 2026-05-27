@@ -70,6 +70,10 @@
     .estado-recibido{background:#dbeafe;border-color:#60a5fa;color:#1d4ed8;}
     .estado-entregado{background:#dcfce7;border-color:#22c55e;color:#166534;}
     .estado-anulado{background:#fee2e2;border-color:#ef4444;color:#991b1b;}
+    .faltante-toggle{display:inline-flex;margin-top:4px;font-size:10px;padding:2px 7px;border-radius:999px;background:#fffbeb;border:1px solid #fbbf24;color:#92400e;font-weight:800;white-space:nowrap;cursor:pointer;}
+    .partial-box{margin-top:6px;padding:8px 10px;border-radius:10px;background:#eff6ff;border:1px solid #93c5fd;color:#1e3a8a;font-size:11px;line-height:1.35;display:none;white-space:pre-wrap;overflow-wrap:break-word;}
+    .partial-box.open{display:block;}
+    .partial-box strong{display:block;margin-bottom:3px;}
     .confirm-pill{display:inline-flex;margin-top:4px;font-size:10px;padding:2px 7px;border-radius:999px;background:#ecfdf5;border:1px solid #22c55e;color:#166534;font-weight:800;white-space:nowrap;}
     .pending-confirm-pill{display:inline-flex;margin-top:4px;font-size:10px;padding:2px 7px;border-radius:999px;background:#fffbeb;border:1px solid #fbbf24;color:#92400e;font-weight:800;white-space:nowrap;}
     .inc-pill{display:inline-flex;margin-top:4px;font-size:10px;padding:2px 7px;border-radius:999px;background:#fff7ed;border:1px solid #fb923c;color:#9a3412;font-weight:800;white-space:nowrap;}
@@ -127,7 +131,7 @@
       <div class="kpi"><span class="label">Total sector</span><span class="value" id="kpiTotal">0</span></div>
       <div class="kpi pendiente"><span class="label">Pendientes</span><span class="value" id="kpiPendiente">0</span></div>
       <div class="kpi pedido"><span class="label">Pedidos</span><span class="value" id="kpiPedido">0</span></div>
-      <div class="kpi recibido"><span class="label">En taller</span><span class="value" id="kpiRecibido">0</span></div>
+      <div class="kpi recibido"><span class="label">Entregado parcial</span><span class="value" id="kpiRecibido">0</span></div>
       <div class="kpi entregado"><span class="label">Entregados</span><span class="value" id="kpiEntregado">0</span></div>
       <div class="kpi confirmar"><span class="label">Por confirmar</span><span class="value" id="kpiConfirmar">0</span></div>
       <div class="kpi anulado"><span class="label">Anulados</span><span class="value" id="kpiAnulado">0</span></div>
@@ -149,7 +153,7 @@
           <option value="activos">Activos</option>
           <option value="pendiente">Pendiente</option>
           <option value="pedido">Pedido</option>
-          <option value="recibido">En taller</option>
+          <option value="recibido">Entregado parcial</option>
           <option value="por_confirmar">Entregas por confirmar</option>
           <option value="entregado_confirmado">Entregados confirmados</option>
           <option value="anulado">Anulado</option>
@@ -244,13 +248,19 @@
     return 'pendiente';
   }
   function estadoTexto(e){
-    return {pendiente:'Pendiente',pedido:'Pedido',recibido:'En taller',entregado:'Entregado',anulado:'Anulado'}[e] || 'Pendiente';
+    return {pendiente:'Pendiente',pedido:'Pedido',recibido:'Entregado parcial',entregado:'Entregado',anulado:'Anulado'}[e] || 'Pendiente';
   }
   function estadoClase(e){
     return 'estado-' + (e || 'pendiente');
   }
-  function pillEstado(e){
-    return `<span class="estado-pill ${estadoClase(e)}"><span class="dot"></span>${estadoTexto(e)}</span>`;
+  function pillEstado(e, p){
+    const texto = estadoTexto(e);
+    if(e === 'recibido' && p && txt(p.materialFaltante)){
+      return `<span class="estado-pill ${estadoClase(e)}"><span class="dot"></span>${texto}</span>
+        <button type="button" class="faltante-toggle" data-accion="toggleParcial">Ver faltante ▾</button>
+        <div class="partial-box" data-role="partialBox"><strong>Material pendiente:</strong>${escapeHtml(p.materialFaltante)}</div>`;
+    }
+    return `<span class="estado-pill ${estadoClase(e)}"><span class="dot"></span>${texto}</span>`;
   }
 
   function loadControl(){
@@ -286,6 +296,16 @@
     return !!data.hidden[id];
   }
 
+  function materialFaltanteDetectado(d){
+    const direct = d.materialFaltante || d.materialPendiente || d.faltante || d.parcialDetalle || d.entregaParcialDetalle || d.entregadoParcialDetalle || d.detalleFaltante || '';
+    if(txt(direct)) return direct;
+    const mat = txt(d.material || d.mat);
+    if(!mat) return '';
+    const lineas = mat.split(/\n|\.|;/).map(s => s.trim()).filter(Boolean);
+    const hit = lineas.find(s => /pendiente|faltan|falta|por recibir|sin recibir/i.test(s));
+    return hit || '';
+  }
+
   function mapPedido(doc){
     const d = doc.data ? (doc.data() || {}) : (doc || {});
     const id = doc.id || d.id || '';
@@ -298,6 +318,7 @@
       mat: d.material || d.mat || '',
       empresa: d.empresa || '',
       estado: normalizarEstado(d.estado),
+      materialFaltante: materialFaltanteDetectado(d),
       confirmadoEntregaHierros: !!c.confirmadoEntregaHierros,
       fechaConfirmacionHierros: c.fechaConfirmacionHierros || '',
       incidenciaHierros: c.incidenciaHierros || '',
@@ -406,7 +427,7 @@
         <td>${escapeHtml(p.ref || p.referencia)}</td>
         <td class="material-cell">${materialHtml(p)}</td>
         <td>${escapeHtml(p.empresa || '')}</td>
-        <td>${pillEstado(p.estado)}${confirmacionEntregaHtml(p)}${incidenciaHtml(p)}</td>
+        <td>${pillEstado(p.estado, p)}${confirmacionEntregaHtml(p)}${incidenciaHtml(p)}</td>
         <td>${accionesHtml(p)}</td>
       </tr>`;
     });
@@ -664,6 +685,16 @@
       box.dataset.expanded = expanded ? '0' : '1';
       text.classList.toggle('collapsed', expanded);
       tmat.textContent = expanded ? 'Ver material completo' : 'Ocultar material';
+      return;
+    }
+    const tpar = e.target.closest('[data-accion="toggleParcial"]');
+    if(tpar){
+      const td = tpar.closest('td');
+      const box = td ? td.querySelector('[data-role="partialBox"]') : null;
+      if(box){
+        const abierto = box.classList.toggle('open');
+        tpar.textContent = abierto ? 'Ocultar faltante ▴' : 'Ver faltante ▾';
+      }
       return;
     }
     const inc = e.target.closest('button[data-accion="abrirIncidencia"]');
