@@ -255,10 +255,11 @@
   }
   function pillEstado(e, p){
     const texto = estadoTexto(e);
-    if(e === 'recibido' && p && txt(p.materialFaltante)){
+    if(e === 'recibido' && p){
+      const detalle = txt(p.materialFaltante) || 'No hay comentario de faltante guardado en el pedido. Revisa si Compras está enviando el campo del diálogo de entrega parcial.';
       return `<span class="estado-pill ${estadoClase(e)}"><span class="dot"></span>${texto}</span>
         <button type="button" class="faltante-toggle" data-accion="toggleParcial">Ver faltante ▾</button>
-        <div class="partial-box" data-role="partialBox"><strong>Material pendiente:</strong>${escapeHtml(p.materialFaltante)}</div>`;
+        <div class="partial-box" data-role="partialBox"><strong>Material pendiente:</strong>${escapeHtml(detalle)}</div>`;
     }
     return `<span class="estado-pill ${estadoClase(e)}"><span class="dot"></span>${texto}</span>`;
   }
@@ -297,12 +298,38 @@
   }
 
   function materialFaltanteDetectado(d){
-    const direct = d.materialFaltante || d.materialPendiente || d.faltante || d.parcialDetalle || d.entregaParcialDetalle || d.entregadoParcialDetalle || d.detalleFaltante || '';
+    const direct = d.materialFaltante || d.materialPendiente || d.faltante || d.parcialDetalle || d.entregaParcialDetalle || d.entregadoParcialDetalle || d.detalleFaltante || d.comentarioFaltante || d.comentarioParcial || d.notaFaltante || d.notaParcial || d.observacionFaltante || d.observacionParcial || d.motivoParcial || '';
     if(txt(direct)) return direct;
+
+    const clavesBuenas = /falt|parcial|pendient|coment|observ|nota|motivo|restante|recibir/i;
+    const clavesMalas = /fecha|estado|sector|empresa|referencia|ref|id|material$|mat$|created|updated|timestamp|usuario|user/i;
+    const vistos = new Set();
+
+    function buscar(obj, pref){
+      if(!obj || typeof obj !== 'object' || vistos.has(obj)) return '';
+      vistos.add(obj);
+      for(const k of Object.keys(obj)){
+        const v = obj[k];
+        const ruta = pref ? pref + '.' + k : k;
+        if(v == null) continue;
+        if(typeof v === 'string' || typeof v === 'number'){
+          const valor = txt(v);
+          if(valor && clavesBuenas.test(ruta) && !clavesMalas.test(ruta)) return valor;
+        }else if(typeof v === 'object'){
+          const encontrado = buscar(v, ruta);
+          if(encontrado) return encontrado;
+        }
+      }
+      return '';
+    }
+
+    const porClave = buscar(d, '');
+    if(porClave) return porClave;
+
     const mat = txt(d.material || d.mat);
     if(!mat) return '';
     const lineas = mat.split(/\n|\.|;/).map(s => s.trim()).filter(Boolean);
-    const hit = lineas.find(s => /pendiente|faltan|falta|por recibir|sin recibir/i.test(s));
+    const hit = lineas.find(s => /pendiente|faltan|falta|por recibir|sin recibir|resta|restan/i.test(s));
     return hit || '';
   }
 
