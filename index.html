@@ -394,6 +394,47 @@
     .tabla-resumen-empresas th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#6b7280;background:#f9fafb;}
     .tabla-resumen-empresas td{font-size:11px;color:#111827;}
     .resumen-total-global{margin-top:6px;font-size:11px;font-weight:600;color:#111827;}
+
+    .modal-parcial-backdrop{
+      position:fixed; inset:0; background:rgba(17,24,39,.62); display:none;
+      align-items:center; justify-content:center; z-index:9999; padding:18px;
+    }
+    .modal-parcial-backdrop.open{display:flex;}
+    .modal-parcial-card{
+      width:min(620px,100%); background:#fff; border-radius:16px; border:1px solid var(--border);
+      box-shadow:0 24px 70px rgba(0,0,0,.25); overflow:hidden;
+    }
+    .modal-parcial-head{
+      background:#111827; color:#fff; padding:12px 16px; display:flex;
+      justify-content:space-between; align-items:center; gap:12px;
+    }
+    .modal-parcial-head h3{font-size:14px;margin:0;}
+    .modal-parcial-close{border:1px solid #4b5563;background:#374151;color:#fff;border-radius:999px;padding:4px 10px;font-size:12px;}
+    .modal-parcial-body{padding:14px 16px;display:flex;flex-direction:column;gap:10px;}
+    .modal-parcial-meta{font-size:12px;color:#374151;background:#f9fafb;border:1px solid var(--border);border-radius:10px;padding:8px 10px;line-height:1.4;}
+    .modal-parcial-body textarea{width:100%;min-height:120px;resize:vertical;border:1px solid var(--border);border-radius:10px;padding:10px;font-size:13px;line-height:1.4;}
+    .modal-parcial-actions{display:flex;justify-content:flex-end;gap:8px;padding:0 16px 16px;flex-wrap:wrap;}
+    .parcial-note-pill{
+      display:inline-flex;margin-top:4px;font-size:10px;padding:2px 7px;border-radius:999px;
+      background:#fffbeb;border:1px solid #fbbf24;color:#92400e;font-weight:700;white-space:nowrap;
+    }
+    .btn-ver-faltante{cursor:pointer;font-family:inherit;}
+
+
+    .estado-btn.parcial-activo{
+      background:#2563eb !important;
+      color:#fff !important;
+      border-color:#2563eb !important;
+    }
+
+
+    .estado-btn.activo[data-estado="recibido"],
+    .estado-btn.activo[data-local-estado="recibido"]{
+      background:#2563eb !important;
+      color:#fff !important;
+      border-color:#2563eb !important;
+    }
+
   </style>
  
 
@@ -570,6 +611,26 @@
 </main>
 <footer>Los responsables usan la URL <strong>app_responsable.html?sector=CODIGO-SECTOR</strong>. El código se ve en la tabla de sectores.</footer>
 
+
+<div id="modalParcial" class="modal-parcial-backdrop" aria-hidden="true">
+  <div class="modal-parcial-card">
+    <div class="modal-parcial-head">
+      <h3>Entrega parcial</h3>
+      <button type="button" class="modal-parcial-close" id="btnCerrarParcial">Cerrar</button>
+    </div>
+    <div class="modal-parcial-body">
+      <div class="modal-parcial-meta" id="parcialMeta"></div>
+      <label for="parcialComentario">Anotar lo que falta</label>
+      <textarea id="parcialComentario" placeholder="Ej: recibido parcial, faltan 2 unidades, falta una barra, pendiente de proveedor..."></textarea>
+      <div class="hint">Este comentario quedará asociado al pedido mientras esté como Entregado parcial. Al pulsar Entregado se eliminará automáticamente.</div>
+    </div>
+    <div class="modal-parcial-actions">
+      <button type="button" class="btn-sm" id="btnCancelarParcial">Cancelar</button>
+      <button type="button" class="btn-main" id="btnGuardarParcial">Guardar entrega parcial</button>
+    </div>
+  </div>
+</div>
+
 <div id="print-area" class="print-only"></div>
 
 <script>
@@ -643,7 +704,7 @@
   function prettySector(id){ if(!id) return 'SIN SECTOR'; return id.replace(/-/g,' ').toUpperCase(); }
   function normalizarEstado(r){ if(!r||r==='pendiente') return 'pendiente'; if(r==='pedido')return 'pedido'; if(r==='recibido')return 'recibido'; if(r==='entregado')return 'entregado'; if(r==='anulado')return 'anulado'; return r;}
   function estadoClase(e){ if(e==='pendiente')return 'estado-pendiente'; if(e==='pedido')return 'estado-pedido'; if(e==='recibido')return 'estado-recibido'; if(e==='entregado')return 'estado-entregado'; if(e==='anulado')return 'estado-anulado'; return 'estado-pendiente';}
-  function estadoTexto(e){ if(e==='pendiente')return 'Pendiente'; if(e==='pedido')return 'Pedido'; if(e==='recibido')return 'En taller'; if(e==='entregado')return 'Entregado'; if(e==='anulado')return 'Anulado'; return 'Pendiente';}
+  function estadoTexto(e){ if(e==='pendiente')return 'Pendiente'; if(e==='pedido')return 'Pedido'; if(e==='recibido')return 'Entregado parcial'; if(e==='entregado')return 'Entregado'; if(e==='anulado')return 'Anulado'; return 'Pendiente';}
   function nombreMes(n){ const i=parseInt(n,10); const m=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']; return m[i-1]||'Mes '+n;}
   function parseFecha(d){ 
     try{if(d.fechaRecibidoTS)return d.fechaRecibidoTS.toDate();}catch(e){} 
@@ -676,8 +737,54 @@
   const resultadosComparacion = document.getElementById('resultadoComparacion');
 
   let sectorActual=null, unsubEmpresas=null, empresasCache=[], totalesEmpresasGlobal={};
+  let pedidoParcialActualId = null;
   let unsubSectores=null, unsubPedidosSector=null, unsubPedidosGlobal=null, sectoresCache=[], pendientesPorSector={};
   let globalPedidosEntregados = [];
+
+
+  function escapeHtmlSimple(v){
+    return (v == null ? '' : String(v)).replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]; });
+  }
+
+  function abrirDialogoParcial(id, ref, mat, comentarioActual){
+    pedidoParcialActualId = id;
+    const modal = document.getElementById('modalParcial');
+    const meta = document.getElementById('parcialMeta');
+    const txt = document.getElementById('parcialComentario');
+    if(meta){
+      meta.innerHTML = '<strong>' + escapeHtmlSimple(ref || '') + '</strong><br>' + escapeHtmlSimple((mat || '').replace(/\s+/g,' ').slice(0,220));
+    }
+    if(txt) txt.value = comentarioActual || '';
+    if(modal){
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden','false');
+    }
+    setTimeout(function(){ if(txt) txt.focus(); }, 50);
+  }
+
+  function cerrarDialogoParcial(){
+    const modal = document.getElementById('modalParcial');
+    if(modal){
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden','true');
+    }
+    pedidoParcialActualId = null;
+  }
+
+  function guardarDialogoParcial(){
+    if(!pedidoParcialActualId) return;
+    const txt = document.getElementById('parcialComentario');
+    const comentario = txt ? txt.value.trim() : '';
+    if(!comentario){
+      alert('Anota qué falta antes de guardar la entrega parcial.');
+      return;
+    }
+    db.collection('pedidos').doc(pedidoParcialActualId).update({
+      estado:'recibido',
+      comentarioParcial: comentario,
+      fechaParcial: new Date().toLocaleString('es-ES')
+    }).then(cerrarDialogoParcial).catch(function(err){ alert('Error al guardar entrega parcial: ' + err); });
+  }
 
   function suscribirSectores(){
     unsubSectores && unsubSectores();
@@ -813,7 +920,7 @@
       const p=[];
       snapshot.forEach(d=>{
         const da=d.data()||{};
-        p.push({ id:d.id, fechaPedido:da.fechaPedido||'', fechaRecibido:da.fechaRecibido||'', ref:da.referencia||'', mat:da.material||'', empresa:da.empresa||'', importeCompra:da.importeCompra||'', proveedor:da.proveedor||'', estado:normalizarEstado(da.estado) });
+        p.push({ id:d.id, fechaPedido:da.fechaPedido||'', fechaRecibido:da.fechaRecibido||'', ref:da.referencia||'', mat:da.material||'', empresa:da.empresa||'', importeCompra:da.importeCompra||'', proveedor:da.proveedor||'', estado:normalizarEstado(da.estado), comentarioParcial:da.comentarioParcial||'' });
       });
       renderPedidos(p);
     });
@@ -844,7 +951,7 @@
             </div>
         `;
 
-        tr.innerHTML=`<td>${fm}</td><td>${p.ref||''}</td><td>${materialCell}</td><td>${cellImpProv}</td><td><div class="empresa-pills" data-id="${p.id}">${eh}</div></td><td><span class="estado-pill ${cl}"><span class="dot"></span>${tx}</span></td><td class="acciones-pedido"><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="pendiente" data-id="${p.id}">Pendiente</button><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="pedido" data-id="${p.id}">Pedido</button><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="recibido" data-id="${p.id}">En taller</button><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="entregado" data-id="${p.id}">Entregado</button><button class="btn-sm danger" data-accion="anularPedido" data-id="${p.id}">Anular pedido</button></td>`;
+        tr.innerHTML=`<td>${fm}</td><td>${p.ref||''}</td><td>${materialCell}</td><td>${cellImpProv}</td><td><div class="empresa-pills" data-id="${p.id}">${eh}</div></td><td>${p.estado==='recibido' && p.comentarioParcial?'<button type="button" class="parcial-note-pill btn-ver-faltante" data-accion="abrirParcial" data-estado="recibido" data-id="'+p.id+'" data-ref="'+escapeHtmlSimple(p.ref||'')+'" data-mat="'+escapeHtmlSimple(p.mat||'')+'" data-comentario="'+escapeHtmlSimple(p.comentarioParcial||'')+'">Ver faltante</button>':'<span class="estado-pill '+cl+'"><span class="dot"></span>'+tx+'</span>'}</td><td class="acciones-pedido"><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="pendiente" data-id="${p.id}">Pendiente</button><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="pedido" data-id="${p.id}">Pedido</button><button class="btn-sm estado-btn ${p.estado==='recibido'?'parcial-activo':''}" data-accion="abrirParcial" data-estado="recibido" data-id="${p.id}" data-ref="${escapeHtmlSimple(p.ref||'')}" data-mat="${escapeHtmlSimple(p.mat||'')}" data-comentario="${escapeHtmlSimple(p.comentarioParcial||'')}">Entregado parcial</button><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="entregado" data-id="${p.id}">Entregado</button><button class="btn-sm danger" data-accion="anularPedido" data-id="${p.id}">Anular pedido</button></td>`;
         const b=tr.querySelectorAll('.estado-btn'); b.forEach(bt=>{if(bt.dataset.estado===p.estado)bt.classList.add('activo');});
         if(p.empresa){ const c=tr.querySelector('.empresa-pills'); if(c){ const bt=c.querySelector(`.pill-empresa[data-empresa="${p.empresa}"]`); if(bt) bt.classList.add('activa'); } }
         tbodyActivos.appendChild(tr);
@@ -1540,6 +1647,17 @@ const prov = (p.proveedor || '').toLowerCase();
       setTimeout(() => window.print(), 100);
     });
   }
+
+
+  const btnCerrarParcial = document.getElementById('btnCerrarParcial');
+  const btnCancelarParcial = document.getElementById('btnCancelarParcial');
+  const btnGuardarParcial = document.getElementById('btnGuardarParcial');
+  const modalParcial = document.getElementById('modalParcial');
+  if(btnCerrarParcial) btnCerrarParcial.addEventListener('click', cerrarDialogoParcial);
+  if(btnCancelarParcial) btnCancelarParcial.addEventListener('click', cerrarDialogoParcial);
+  if(btnGuardarParcial) btnGuardarParcial.addEventListener('click', guardarDialogoParcial);
+  if(modalParcial) modalParcial.addEventListener('click', function(e){ if(e.target === modalParcial) cerrarDialogoParcial(); });
+
 
   // Llamadas iniciales
   suscribirSectores(); 
