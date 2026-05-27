@@ -71,7 +71,7 @@
     .estado-entregado{background:#dcfce7;border-color:#22c55e;color:#166534;}
     .estado-anulado{background:#fee2e2;border-color:#ef4444;color:#991b1b;}
     .faltante-toggle{display:inline-flex;margin-top:4px;font-size:10px;padding:2px 7px;border-radius:999px;background:#fffbeb;border:1px solid #fbbf24;color:#92400e;font-weight:800;white-space:nowrap;cursor:pointer;}
-    .partial-box{margin-top:6px;padding:8px 10px;border-radius:10px;background:#eff6ff;border:1px solid #93c5fd;color:#1e3a8a;font-size:11px;line-height:1.35;display:none;white-space:pre-wrap;overflow-wrap:break-word;}
+    .partial-box{margin-top:6px;padding:9px 11px;border-radius:10px;background:#eff6ff;border:1px solid #93c5fd;color:#1e3a8a;font-size:11px;line-height:1.45;display:none;white-space:pre-line;overflow-wrap:normal;word-break:normal;min-width:340px;max-width:560px;text-align:left;}
     .partial-box.open{display:block;}
     .partial-box strong{display:block;margin-bottom:3px;}
     .confirm-pill{display:inline-flex;margin-top:4px;font-size:10px;padding:2px 7px;border-radius:999px;background:#ecfdf5;border:1px solid #22c55e;color:#166534;font-weight:800;white-space:nowrap;}
@@ -239,6 +239,13 @@
   function escapeHtml(v){
     return txt(v).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   }
+  function formatoFaltante(v){
+    return txt(v)
+      .replace(/\\r\\n|\\n|\\r/g, '\n')
+      .replace(/\r\n|\r/g, '\n')
+      .replace(/\s+$/gm, '')
+      .trim();
+  }
   function normalizarEstado(e){
     e = txt(e) || 'pendiente';
     if(e === 'recibido') return 'recibido';
@@ -256,7 +263,7 @@
   function pillEstado(e, p){
     const texto = estadoTexto(e);
     if(e === 'recibido' && p){
-      const detalle = txt(p.materialFaltante) || 'No hay comentario de faltante guardado en el pedido. Revisa si Compras está enviando el campo del diálogo de entrega parcial.';
+      const detalle = formatoFaltante(p.materialFaltante) || 'No hay comentario de faltante guardado en el pedido. Revisa si Compras está enviando el campo del diálogo de entrega parcial.';
       return `<span class="estado-pill ${estadoClase(e)}"><span class="dot"></span>${texto}</span>
         <button type="button" class="faltante-toggle" data-accion="toggleParcial">Ver faltante ▾</button>
         <div class="partial-box" data-role="partialBox"><strong>Material pendiente:</strong>${escapeHtml(detalle)}</div>`;
