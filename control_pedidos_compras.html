@@ -27,7 +27,10 @@
     .badge{font-size:11px;padding:2px 8px;border-radius:999px;background:var(--accent-soft);color:var(--muted);}
     .badge.alert{background:#fee2e2;color:#b91c1c;}
     .top-grid{display:grid;grid-template-columns:repeat(7,minmax(120px,1fr));gap:10px;}
-    .kpi{background:#f9fafb;border:1px solid var(--border);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:4px;}
+    .kpi{background:#f9fafb;border:1px solid var(--border);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:4px;text-align:left;color:inherit;}
+    button.kpi{cursor:pointer;}
+    button.kpi:hover{background:#eef2ff;border-color:#93c5fd;box-shadow:0 4px 12px rgba(37,99,235,.12);transform:translateY(-1px);}
+    button.kpi:active{transform:scale(.99);}
     .kpi .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
     .kpi .value{font-size:24px;font-weight:900;color:#111827;line-height:1;}
     .kpi.pendiente .value{color:var(--orange);}
@@ -70,7 +73,9 @@
     .estado-recibido{background:#dbeafe;border-color:#60a5fa;color:#1d4ed8;}
     .estado-entregado{background:#dcfce7;border-color:#22c55e;color:#166534;}
     .estado-anulado{background:#fee2e2;border-color:#ef4444;color:#991b1b;}
-    .faltante-toggle{display:inline-flex;margin-top:4px;font-size:10px;padding:2px 7px;border-radius:999px;background:#fffbeb;border:1px solid #fbbf24;color:#92400e;font-weight:800;white-space:nowrap;cursor:pointer;}
+    .faltante-toggle{display:inline-flex;margin-top:4px;font-size:10px;padding:2px 7px;border-radius:999px;background:#fee2e2;border:1px solid #ef4444;color:#991b1b;font-weight:900;white-space:nowrap;cursor:pointer;}
+    .faltante-toggle:hover{background:#fecaca;}
+    .section-alert-pill{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 7px;border-radius:999px;background:#fee2e2;border:1px solid #ef4444;color:#991b1b;font-weight:900;white-space:nowrap;}
     .partial-box{margin-top:6px;padding:9px 11px;border-radius:10px;background:#eff6ff;border:1px solid #93c5fd;color:#1e3a8a;font-size:11px;line-height:1.45;display:none;white-space:pre-line;overflow-wrap:normal;word-break:normal;min-width:340px;max-width:560px;text-align:left;}
     .partial-box.open{display:block;}
     .partial-box strong{display:block;margin-bottom:3px;}
@@ -128,13 +133,13 @@
   <section class="panel">
     <h2>Estado general <span class="badge" id="connectionBadge">Conectando...</span></h2>
     <div class="top-grid">
-      <div class="kpi"><span class="label">Total sector</span><span class="value" id="kpiTotal">0</span></div>
-      <div class="kpi pendiente"><span class="label">Pendientes</span><span class="value" id="kpiPendiente">0</span></div>
-      <div class="kpi pedido"><span class="label">Pedidos</span><span class="value" id="kpiPedido">0</span></div>
-      <div class="kpi recibido"><span class="label">Entregado parcial</span><span class="value" id="kpiRecibido">0</span></div>
-      <div class="kpi entregado"><span class="label">Entregados</span><span class="value" id="kpiEntregado">0</span></div>
-      <div class="kpi confirmar"><span class="label">Por confirmar</span><span class="value" id="kpiConfirmar">0</span></div>
-      <div class="kpi anulado"><span class="label">Anulados</span><span class="value" id="kpiAnulado">0</span></div>
+      <button type="button" class="kpi" data-kpi-section="completo" data-kpi-filter="todos"><span class="label">Total sector</span><span class="value" id="kpiTotal">0</span></button>
+      <button type="button" class="kpi pendiente" data-kpi-section="activos" data-kpi-filter="pendiente"><span class="label">Pendientes</span><span class="value" id="kpiPendiente">0</span></button>
+      <button type="button" class="kpi pedido" data-kpi-section="activos" data-kpi-filter="pedido"><span class="label">Pedidos</span><span class="value" id="kpiPedido">0</span></button>
+      <button type="button" class="kpi recibido" data-kpi-section="activos" data-kpi-filter="recibido"><span class="label">Entregado parcial</span><span class="value" id="kpiRecibido">0</span></button>
+      <button type="button" class="kpi entregado" data-kpi-section="entregados" data-kpi-filter="entregado_confirmado"><span class="label">Entregados</span><span class="value" id="kpiEntregado">0</span></button>
+      <button type="button" class="kpi confirmar" data-kpi-section="confirmar" data-kpi-filter="por_confirmar"><span class="label">Por confirmar</span><span class="value" id="kpiConfirmar">0</span></button>
+      <button type="button" class="kpi anulado" data-kpi-section="anulados" data-kpi-filter="anulado"><span class="label">Anulados</span><span class="value" id="kpiAnulado">0</span></button>
     </div>
     <div class="hint" id="systemHint">Este programa lee los pedidos reales de Compras del sector los-del-hierros. Incluye blindaje interno para entregas parciales convertidas a entregado. Tus confirmaciones, incidencias y borrados de vista son solo internos de este ordenador.</div>
   </section>
@@ -431,6 +436,26 @@
     }));
   }
 
+  function pedidosEspejoAnuladosDesaparecidos(idsActuales){
+    const data = loadControl();
+    const mirror = data.mirror || {};
+    return Object.keys(mirror).map(id => mirror[id]).filter(m => {
+      if(!m || !m.id) return false;
+      if(idsActuales.has(m.id)) return false;
+      if(isHidden(m.id)) return false;
+      if((m.sector || SECTOR) !== SECTOR) return false;
+      const c = (data.items || {})[m.id] || {};
+      if(c.confirmadoEntregaHierros) return false;
+      if(m.estado === 'entregado') return false;
+      if(m.estado === 'recibido' || !!m.materialFaltante) return false;
+      return ['pendiente','pedido'].includes(m.estado);
+    }).map(m => Object.assign({}, m, {
+      estado: 'anulado',
+      anuladoPorComprasControl: true,
+      fechaRecibido: m.fechaRecibido || m.actualizadoControl || ''
+    }));
+  }
+
   function materialFaltanteDetectado(d){
     const direct = d.materialFaltante || d.materialPendiente || d.faltante || d.parcialDetalle || d.entregaParcialDetalle || d.entregadoParcialDetalle || d.detalleFaltante || d.comentarioFaltante || d.comentarioParcial || d.notaFaltante || d.notaParcial || d.observacionFaltante || d.observacionParcial || d.motivoParcial || '';
     if(txt(direct)) return direct;
@@ -480,6 +505,9 @@
       empresa: d.empresa || '',
       estado: estadoPedidoControl(d),
       materialFaltante: materialFaltanteDetectado(d) || c.materialFaltanteHistorial || '',
+      recuperadoPorControl: !!d.recuperadoPorControl,
+      recuperadoGlobalControl: !!d.recuperadoGlobalControl,
+      anuladoPorComprasControl: !!d.anuladoPorComprasControl,
       confirmadoEntregaHierros: !!c.confirmadoEntregaHierros,
       fechaConfirmacionHierros: c.fechaConfirmacionHierros || '',
       incidenciaHierros: c.incidenciaHierros || '',
@@ -501,7 +529,10 @@
     globalesVigilados.forEach(p => { if(p.id) idsActuales.add(p.id); });
 
     const recuperados = pedidosEspejoDesaparecidos(idsActuales).map(mapPedido);
-    const todos = actuales.concat(globalesVigilados, recuperados);
+    recuperados.forEach(p => { if(p.id) idsActuales.add(p.id); });
+
+    const anuladosRecuperados = pedidosEspejoAnuladosDesaparecidos(idsActuales).map(mapPedido);
+    const todos = actuales.concat(globalesVigilados, recuperados, anuladosRecuperados);
 
     // Blindaje adicional: si el pedido venía de entrega parcial, no lo ocultamos por un
     // borrado antiguo del navegador mientras siga pendiente de confirmar en Control.
@@ -522,6 +553,7 @@
       const f = p.fechaConfirmacionHierros ? ' · ' + escapeHtml(p.fechaConfirmacionHierros) : '';
       return `<span class="confirm-pill">Confirmado${f}</span>`;
     }
+    if(tieneFaltanteHistorico(p)) return '<span class="pending-confirm-pill">Pendiente de confirmar</span><span class="section-alert-pill" style="margin-top:4px;">⚠ venía con faltante</span>';
     return '<span class="pending-confirm-pill">Pendiente de confirmar</span>';
   }
   function incidenciaActiva(p){
@@ -531,6 +563,10 @@
     if(!p.incidenciaHierros) return '';
     if(p.incidenciaHierrosResuelta) return '<span class="inc-pill resuelta">Incidencia resuelta</span>';
     return '<span class="inc-pill">Incidencia abierta</span>';
+  }
+  function alertaAnuladoHtml(p){
+    if(p && p.estado === 'anulado') return '<span class="section-alert-pill" style="margin-top:4px;">⚠ anulado</span>';
+    return '';
   }
   function permiteIncidencia(p){
     return p.estado !== 'anulado' && (p.estado !== 'entregado' || !p.confirmadoEntregaHierros);
@@ -609,7 +645,7 @@
         <td>${escapeHtml(p.ref || p.referencia)}</td>
         <td class="material-cell">${materialHtml(p)}</td>
         <td>${escapeHtml(p.empresa || '')}</td>
-        <td>${pillEstado(p.estado, p)}${confirmacionEntregaHtml(p)}${incidenciaHtml(p)}</td>
+        <td>${pillEstado(p.estado, p)}${confirmacionEntregaHtml(p)}${incidenciaHtml(p)}${alertaAnuladoHtml(p)}</td>
         <td>${accionesHtml(p)}</td>
       </tr>`;
     });
@@ -692,6 +728,21 @@
     abrirResultadosSiProcede(autoOpen);
   }
 
+  function tieneFaltanteHistorico(p){
+    return !!(p && txt(p.materialFaltante));
+  }
+  function esEntregadoConFaltantePendiente(p){
+    return !!(p && p.estado === 'entregado' && !p.confirmadoEntregaHierros && tieneFaltanteHistorico(p));
+  }
+  function esAnuladoAlertable(p){
+    return !!(p && p.estado === 'anulado');
+  }
+  function badgeConAlerta(id, total, alerta, texto){
+    const base = `<span class="badge${total ? ' alert' : ''}" id="${id}">${total}</span>`;
+    if(alerta > 0) return `${base}<span class="section-alert-pill">⚠ ${alerta} ${texto}</span>`;
+    return base;
+  }
+
   function renderKpis(){
     const total = filtrados.length;
     const pendiente = filtrados.filter(p=>p.estado==='pendiente').length;
@@ -715,10 +766,13 @@
     const entregados = filtrados.filter(p => p.estado === 'entregado' && p.confirmadoEntregaHierros);
     const anulados = filtrados.filter(p => p.estado === 'anulado');
 
+    const confirmarConFaltante = confirmar.filter(esEntregadoConFaltantePendiente).length;
+    const anuladosAlertables = anulados.filter(esAnuladoAlertable).length;
+
     $('badgeActivos').textContent = activos.length;
-    $('badgeConfirmar').textContent = confirmar.length;
+    $('badgeConfirmar').outerHTML = badgeConAlerta('badgeConfirmar', confirmar.length, confirmarConFaltante, 'con faltante');
     $('badgeEntregados').textContent = entregados.length;
-    $('badgeAnulados').textContent = anulados.length;
+    $('badgeAnulados').outerHTML = badgeConAlerta('badgeAnulados', anulados.length, anuladosAlertables, 'anulado');
     $('badgeCompleto').textContent = filtrados.length;
 
     $('activosBody').innerHTML = tablaHTML(activos, 'activos');
@@ -845,7 +899,22 @@
     alert(`Borrados de tu vista: ${permitidos.length}\nNo borrados por incidencia sin resolver: ${bloqueadosIncidencia.length}\nNo borrados por estado no borrable: ${bloqueadosEstado.length}`);
   }
 
+  function abrirKpi(sectionKey, filterValue){
+    if(filterValue && estadoFilter){
+      estadoFilter.value = filterValue;
+      searchInput.value = '';
+      empresaFilter.value = 'todas';
+      aplicarFiltros(false);
+    }
+    colapsarSecciones();
+    abrirSeccion(sectionKey || 'completo');
+    const panel = document.querySelector(`.panel.collapsible[data-section="${sectionKey || 'completo'}"]`);
+    if(panel) panel.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
   document.addEventListener('click', function(e){
+    const kpi = e.target.closest('button[data-kpi-section]');
+    if(kpi){ abrirKpi(kpi.dataset.kpiSection, kpi.dataset.kpiFilter); return; }
     const selVis = e.target.closest('button[data-accion="seleccionarVisibles"]');
     if(selVis){ seleccionarVisibles(selVis.dataset.section); return; }
 
