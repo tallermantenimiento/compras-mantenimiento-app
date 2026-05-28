@@ -247,12 +247,33 @@
       .trim();
   }
   function normalizarEstado(e){
-    e = txt(e) || 'pendiente';
-    if(e === 'recibido') return 'recibido';
-    if(e === 'entregado') return 'entregado';
-    if(e === 'pedido') return 'pedido';
-    if(e === 'anulado') return 'anulado';
+    const raw = txt(e) || 'pendiente';
+    const n = normalizar(raw);
+
+    if(n === 'recibido' || n === 'en-taller' || n === 'entrega-parcial' || n === 'entregado-parcial' || (n.includes('parcial') && n.includes('entreg'))) return 'recibido';
+    if(n === 'entregado' || n === 'entrega-completa' || n === 'por-confirmar' || (n.includes('entreg') && !n.includes('parcial'))) return 'entregado';
+    if(n === 'pedido' || n.includes('pedido')) return 'pedido';
+    if(n === 'anulado' || n.includes('anulad')) return 'anulado';
     return 'pendiente';
+  }
+  function estadoPedidoControl(d){
+    const estadoBase = normalizarEstado(d.estado || d.status || d.estadoPedido || d.estadoCompra || 'pendiente');
+
+    // Blindaje: si Compras ya lo ha marcado como entregado/por confirmar, debe aparecer en
+    // "Entregas por confirmar" aunque el pedido conserve datos de una entrega parcial anterior.
+    const camposEntrega = [
+      d.estado, d.status, d.estadoPedido, d.estadoCompra, d.estadoEntrega,
+      d.resultadoEntrega, d.situacion, d.fase
+    ].map(v => normalizar(v)).join(' ');
+    const flagsEntrega = [
+      d.entregado, d.esEntregado, d.pedidoEntregado, d.entregaCompleta,
+      d.entregaFinalizada, d.confirmarEntrega, d.pendienteConfirmarEntrega
+    ].some(v => v === true || v === 'true' || v === 1 || v === '1');
+
+    if((camposEntrega.includes('entreg') && !camposEntrega.includes('parcial')) || camposEntrega.includes('por-confirmar') || flagsEntrega){
+      return 'entregado';
+    }
+    return estadoBase;
   }
   function estadoTexto(e){
     return {pendiente:'Pendiente',pedido:'Pedido',recibido:'Entregado parcial',entregado:'Entregado',anulado:'Anulado'}[e] || 'Pendiente';
@@ -262,11 +283,13 @@
   }
   function pillEstado(e, p){
     const texto = estadoTexto(e);
-    if(e === 'recibido' && p){
-      const detalle = formatoFaltante(p.materialFaltante) || 'No hay comentario de faltante guardado en el pedido. Revisa si Compras está enviando el campo del diálogo de entrega parcial.';
+    const tieneParcial = p && txt(p.materialFaltante);
+    if(e === 'recibido' || (e === 'entregado' && tieneParcial)){
+      const detalle = formatoFaltante(p && p.materialFaltante) || 'No hay comentario de faltante guardado en el pedido. Revisa si Compras está enviando el campo del diálogo de entrega parcial.';
+      const titulo = e === 'entregado' ? 'Anotación de entrega parcial anterior:' : 'Material pendiente:';
       return `<span class="estado-pill ${estadoClase(e)}"><span class="dot"></span>${texto}</span>
         <button type="button" class="faltante-toggle" data-accion="toggleParcial">Ver faltante ▾</button>
-        <div class="partial-box" data-role="partialBox"><strong>Material pendiente:</strong>${escapeHtml(detalle)}</div>`;
+        <div class="partial-box" data-role="partialBox"><strong>${titulo}</strong>${escapeHtml(detalle)}</div>`;
     }
     return `<span class="estado-pill ${estadoClase(e)}"><span class="dot"></span>${texto}</span>`;
   }
@@ -351,7 +374,7 @@
       ref: d.referencia || d.ref || '',
       mat: d.material || d.mat || '',
       empresa: d.empresa || '',
-      estado: normalizarEstado(d.estado),
+      estado: estadoPedidoControl(d),
       materialFaltante: materialFaltanteDetectado(d),
       confirmadoEntregaHierros: !!c.confirmadoEntregaHierros,
       fechaConfirmacionHierros: c.fechaConfirmacionHierros || '',
@@ -526,7 +549,8 @@
       const empresa = normalizar(p.empresa);
       const estado = normalizar(p.estado);
       const fecha = normalizar([p.fechaPedido,p.fechaRecibido].join(' '));
-      const baseBusqueda = `${ref} ${material} ${empresa} ${estado} ${fecha}`;
+      const faltante = normalizar(p.materialFaltante);
+      const baseBusqueda = `${ref} ${material} ${faltante} ${empresa} ${estado} ${normalizar(estadoTexto(p.estado))} ${fecha}`;
       const partes = q.split('-').filter(Boolean);
       const qOk = !q || ref.startsWith(q) || ref.includes(q) || baseBusqueda.includes(q) || partes.every(parte => baseBusqueda.includes(parte));
       let eOk;
