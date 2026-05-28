@@ -73,9 +73,9 @@
     .estado-recibido{background:#dbeafe;border-color:#60a5fa;color:#1d4ed8;}
     .estado-entregado{background:#dcfce7;border-color:#22c55e;color:#166534;}
     .estado-anulado{background:#fee2e2;border-color:#ef4444;color:#991b1b;}
-    .faltante-toggle{display:inline-flex;margin-top:4px;font-size:10px;padding:2px 7px;border-radius:999px;background:#fee2e2;border:1px solid #ef4444;color:#991b1b;font-weight:900;white-space:nowrap;cursor:pointer;}
-    .faltante-toggle:hover{background:#fecaca;}
-    .section-alert-pill{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 7px;border-radius:999px;background:#fee2e2;border:1px solid #ef4444;color:#991b1b;font-weight:900;white-space:nowrap;}
+    .faltante-toggle{display:inline-flex;margin-top:4px;font-size:10px;padding:2px 7px;border-radius:999px;background:#dc2626;border:1px solid #991b1b;color:#ffffff;font-weight:900;white-space:nowrap;cursor:pointer;box-shadow:0 1px 3px rgba(153,27,27,.25);}
+    .faltante-toggle:hover{background:#b91c1c;}
+    .section-alert-pill{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 7px;border-radius:999px;background:#dc2626;border:1px solid #991b1b;color:#ffffff;font-weight:900;white-space:nowrap;box-shadow:0 1px 3px rgba(153,27,27,.22);}
     .partial-box{margin-top:6px;padding:9px 11px;border-radius:10px;background:#eff6ff;border:1px solid #93c5fd;color:#1e3a8a;font-size:11px;line-height:1.45;display:none;white-space:pre-line;overflow-wrap:normal;word-break:normal;min-width:340px;max-width:560px;text-align:left;}
     .partial-box.open{display:block;}
     .partial-box strong{display:block;margin-bottom:3px;}
@@ -736,10 +736,25 @@
   function esAnuladoAlertable(p){
     return !!(p && p.estado === 'anulado');
   }
-  function badgeConAlerta(id, total, alerta, texto){
-    const base = `<span class="badge${total ? ' alert' : ''}" id="${id}">${total}</span>`;
-    if(alerta > 0) return `${base}<span class="section-alert-pill">⚠ ${alerta} ${texto}</span>`;
-    return base;
+  function actualizarBadgeSeccion(id, total, alerta, texto){
+    const badge = $(id);
+    if(!badge) return;
+    badge.textContent = total;
+    badge.className = 'badge' + (total ? ' alert' : '');
+
+    const titleLeft = badge.closest('.title-left');
+    if(!titleLeft) return;
+
+    // Limpia cualquier alerta anterior de esta cabecera, incluso si venía de una versión previa.
+    titleLeft.querySelectorAll('.section-alert-pill').forEach(el => el.remove());
+
+    if(alerta > 0){
+      const span = document.createElement('span');
+      span.className = 'section-alert-pill';
+      span.dataset.alertFor = id;
+      span.textContent = `⚠ ${alerta} ${texto}`;
+      badge.insertAdjacentElement('afterend', span);
+    }
   }
 
   function renderKpis(){
@@ -768,9 +783,9 @@
     const anuladosAlertables = anulados.filter(esAnuladoAlertable).length;
 
     $('badgeActivos').textContent = activos.length;
-    $('badgeConfirmar').outerHTML = badgeConAlerta('badgeConfirmar', confirmar.length, confirmarConFaltante, 'con faltante');
+    actualizarBadgeSeccion('badgeConfirmar', confirmar.length, confirmarConFaltante, 'con faltante');
     $('badgeEntregados').textContent = entregados.length;
-    $('badgeAnulados').outerHTML = badgeConAlerta('badgeAnulados', anulados.length, anuladosAlertables, 'anulado');
+    actualizarBadgeSeccion('badgeAnulados', anulados.length, anuladosAlertables, 'anulado');
     $('badgeCompleto').textContent = filtrados.length;
 
     $('activosBody').innerHTML = tablaHTML(activos, 'activos');
