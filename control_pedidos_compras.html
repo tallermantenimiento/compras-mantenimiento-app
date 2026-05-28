@@ -26,7 +26,7 @@
     .panel h2{font-size:14px;font-weight:800;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;}
     .badge{font-size:11px;padding:2px 8px;border-radius:999px;background:var(--accent-soft);color:var(--muted);}
     .badge.alert{background:#fee2e2;color:#b91c1c;}
-    .top-grid{display:grid;grid-template-columns:repeat(7,minmax(120px,1fr));gap:10px;}
+    .top-grid{display:grid;grid-template-columns:repeat(6,minmax(120px,1fr));gap:10px;}
     .kpi{background:#f9fafb;border:1px solid var(--border);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:4px;text-align:left;color:inherit;}
     button.kpi{cursor:pointer;}
     button.kpi:hover{background:#eef2ff;border-color:#93c5fd;box-shadow:0 4px 12px rgba(37,99,235,.12);transform:translateY(-1px);}
@@ -135,7 +135,6 @@
     <div class="top-grid">
       <button type="button" class="kpi" data-kpi-section="completo" data-kpi-filter="todos" title="Abrir listado completo"><span class="label">Total sector</span><span class="value" id="kpiTotal">0</span></button>
       <button type="button" class="kpi pendiente" data-kpi-section="activos" data-kpi-filter="pendiente" title="Abrir pedidos activos"><span class="label">Pendientes</span><span class="value" id="kpiPendiente">0</span></button>
-      <button type="button" class="kpi pedido" data-kpi-section="activos" data-kpi-filter="pedido" title="Abrir pedidos activos"><span class="label">Pedidos</span><span class="value" id="kpiPedido">0</span></button>
       <button type="button" class="kpi recibido" data-kpi-section="activos" data-kpi-filter="recibido" title="Abrir pedidos activos"><span class="label">Entregado parcial</span><span class="value" id="kpiRecibido">0</span></button>
       <button type="button" class="kpi entregado" data-kpi-section="entregados" data-kpi-filter="entregado_confirmado" title="Abrir entregados confirmados"><span class="label">Entregados</span><span class="value" id="kpiEntregado">0</span></button>
       <button type="button" class="kpi confirmar" data-kpi-section="confirmar" data-kpi-filter="por_confirmar" title="Abrir entregas por confirmar"><span class="label">Por confirmar</span><span class="value" id="kpiConfirmar">0</span></button>
@@ -753,7 +752,6 @@
     const anulado = filtrados.filter(p=>p.estado==='anulado').length;
     $('kpiTotal').textContent = total;
     $('kpiPendiente').textContent = pendiente;
-    $('kpiPedido').textContent = pedido;
     $('kpiRecibido').textContent = recibido;
     $('kpiEntregado').textContent = entregado;
     $('kpiConfirmar').textContent = confirmar;
