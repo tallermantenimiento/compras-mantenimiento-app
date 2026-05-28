@@ -300,9 +300,10 @@
       const data = raw ? JSON.parse(raw) : {};
       data.items = data.items || {};
       data.hidden = data.hidden || {};
+      data.mirror = data.mirror || {};
       return data;
     }catch(e){
-      return {items:{},hidden:{}};
+      return {items:{},hidden:{},mirror:{}};
     }
   }
   function saveControl(data){
@@ -325,6 +326,68 @@
   function isHidden(id){
     const data = loadControl();
     return !!data.hidden[id];
+  }
+
+
+  function docDataPlano(doc){
+    const d = doc && doc.data ? (doc.data() || {}) : (doc || {});
+    return Object.assign({}, d, { id: (doc && doc.id) || d.id || '' });
+  }
+
+  function guardarEspejoPedidos(docs){
+    const data = loadControl();
+    data.mirror = data.mirror || {};
+    docs.forEach(doc => {
+      const d = docDataPlano(doc);
+      const id = d.id;
+      if(!id) return;
+      const prev = data.mirror[id] || {};
+      const faltante = materialFaltanteDetectado(d) || prev.materialFaltante || '';
+      const estado = estadoPedidoControl(d);
+      data.mirror[id] = {
+        id,
+        sector: d.sector || SECTOR,
+        fechaPedido: d.fechaPedido || prev.fechaPedido || '',
+        fechaRecibido: d.fechaRecibido || prev.fechaRecibido || '',
+        referencia: d.referencia || d.ref || prev.referencia || '',
+        ref: d.ref || d.referencia || prev.ref || '',
+        material: d.material || d.mat || prev.material || '',
+        mat: d.mat || d.material || prev.mat || '',
+        empresa: d.empresa || prev.empresa || '',
+        estado,
+        materialFaltante: faltante,
+        comentarioParcial: faltante,
+        vistoEnFirestore: true,
+        actualizadoControl: new Date().toLocaleString('es-ES')
+      };
+
+      if(faltante){
+        const itemPrev = data.items[id] || {};
+        data.items[id] = Object.assign({}, itemPrev, {
+          materialFaltanteHistorial: faltante,
+          fechaMaterialFaltanteHistorial: new Date().toLocaleString('es-ES')
+        });
+      }
+    });
+    saveControl(data);
+  }
+
+  function pedidosEspejoDesaparecidos(idsActuales){
+    const data = loadControl();
+    const mirror = data.mirror || {};
+    return Object.keys(mirror).map(id => mirror[id]).filter(m => {
+      if(!m || !m.id) return false;
+      if(idsActuales.has(m.id)) return false;
+      if(isHidden(m.id)) return false;
+      if((m.sector || SECTOR) !== SECTOR) return false;
+      const c = (data.items || {})[m.id] || {};
+      if(c.confirmadoEntregaHierros) return false;
+      return m.estado === 'recibido' || !!m.materialFaltante;
+    }).map(m => Object.assign({}, m, {
+      estado: 'entregado',
+      recuperadoPorControl: true,
+      fechaRecibido: m.fechaRecibido || m.actualizadoControl || ''
+    }));
   }
 
   function materialFaltanteDetectado(d){
@@ -375,7 +438,7 @@
       mat: d.material || d.mat || '',
       empresa: d.empresa || '',
       estado: estadoPedidoControl(d),
-      materialFaltante: materialFaltanteDetectado(d),
+      materialFaltante: materialFaltanteDetectado(d) || c.materialFaltanteHistorial || '',
       confirmadoEntregaHierros: !!c.confirmadoEntregaHierros,
       fechaConfirmacionHierros: c.fechaConfirmacionHierros || '',
       incidenciaHierros: c.incidenciaHierros || '',
@@ -386,7 +449,14 @@
   }
 
   function recomponerPedidos(){
-    pedidos = pedidosRaw.map(mapPedido).filter(p => !isHidden(p.id));
+    const idsActuales = new Set();
+    const actuales = pedidosRaw.map(doc => {
+      const p = mapPedido(doc);
+      if(p.id) idsActuales.add(p.id);
+      return p;
+    });
+    const recuperados = pedidosEspejoDesaparecidos(idsActuales).map(mapPedido);
+    pedidos = actuales.concat(recuperados).filter(p => !isHidden(p.id));
     actualizarEmpresas();
     aplicarFiltros(false);
   }
@@ -795,6 +865,7 @@
       unsubPedidos = db.collection('pedidos').where('sector','==',SECTOR).onSnapshot(snapshot => {
         pedidosRaw = [];
         snapshot.forEach(doc => pedidosRaw.push(doc));
+        guardarEspejoPedidos(pedidosRaw);
         recomponerPedidos();
         $('connectionBadge').textContent = pedidosRaw.length + ' pedidos recibidos';
       }, err => {
