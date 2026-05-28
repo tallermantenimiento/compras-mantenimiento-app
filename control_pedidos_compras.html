@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Control pedidos · Los del hierros · FIX7 limpio</title>
+  <title>Control pedidos · Los del hierros · FIX9 botones sin filtros</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="./sklum_icon.ico" type="image/x-icon">
   <link rel="shortcut icon" href="./sklum_icon.ico" type="image/x-icon">
@@ -133,13 +133,13 @@
   <section class="panel">
     <h2>Estado general <span class="badge" id="connectionBadge">Conectando...</span></h2>
     <div class="top-grid">
-      <button type="button" class="kpi" data-kpi-section="completo" data-kpi-filter="todos"><span class="label">Total sector</span><span class="value" id="kpiTotal">0</span></button>
-      <button type="button" class="kpi pendiente" data-kpi-section="activos" data-kpi-filter="pendiente"><span class="label">Pendientes</span><span class="value" id="kpiPendiente">0</span></button>
-      <button type="button" class="kpi pedido" data-kpi-section="activos" data-kpi-filter="pedido"><span class="label">Pedidos</span><span class="value" id="kpiPedido">0</span></button>
-      <button type="button" class="kpi recibido" data-kpi-section="activos" data-kpi-filter="recibido"><span class="label">Entregado parcial</span><span class="value" id="kpiRecibido">0</span></button>
-      <button type="button" class="kpi entregado" data-kpi-section="entregados" data-kpi-filter="entregado_confirmado"><span class="label">Entregados</span><span class="value" id="kpiEntregado">0</span></button>
-      <button type="button" class="kpi confirmar" data-kpi-section="confirmar" data-kpi-filter="por_confirmar"><span class="label">Por confirmar</span><span class="value" id="kpiConfirmar">0</span></button>
-      <button type="button" class="kpi anulado" data-kpi-section="anulados" data-kpi-filter="anulado"><span class="label">Anulados</span><span class="value" id="kpiAnulado">0</span></button>
+      <button type="button" class="kpi" data-kpi-section="completo" data-kpi-filter="todos" title="Abrir listado completo"><span class="label">Total sector</span><span class="value" id="kpiTotal">0</span></button>
+      <button type="button" class="kpi pendiente" data-kpi-section="activos" data-kpi-filter="pendiente" title="Abrir pedidos activos"><span class="label">Pendientes</span><span class="value" id="kpiPendiente">0</span></button>
+      <button type="button" class="kpi pedido" data-kpi-section="activos" data-kpi-filter="pedido" title="Abrir pedidos activos"><span class="label">Pedidos</span><span class="value" id="kpiPedido">0</span></button>
+      <button type="button" class="kpi recibido" data-kpi-section="activos" data-kpi-filter="recibido" title="Abrir pedidos activos"><span class="label">Entregado parcial</span><span class="value" id="kpiRecibido">0</span></button>
+      <button type="button" class="kpi entregado" data-kpi-section="entregados" data-kpi-filter="entregado_confirmado" title="Abrir entregados confirmados"><span class="label">Entregados</span><span class="value" id="kpiEntregado">0</span></button>
+      <button type="button" class="kpi confirmar" data-kpi-section="confirmar" data-kpi-filter="por_confirmar" title="Abrir entregas por confirmar"><span class="label">Por confirmar</span><span class="value" id="kpiConfirmar">0</span></button>
+      <button type="button" class="kpi anulado" data-kpi-section="anulados" data-kpi-filter="anulado" title="Abrir anulados"><span class="label">Anulados</span><span class="value" id="kpiAnulado">0</span></button>
     </div>
     <div class="hint" id="systemHint">Este programa lee los pedidos reales de Compras del sector los-del-hierros. Incluye blindaje interno para entregas parciales convertidas a entregado. Tus confirmaciones, incidencias y borrados de vista son solo internos de este ordenador.</div>
   </section>
@@ -900,15 +900,13 @@
   }
 
   function abrirKpi(sectionKey, filterValue){
-    if(filterValue && estadoFilter){
-      estadoFilter.value = filterValue;
-      searchInput.value = '';
-      empresaFilter.value = 'todas';
-      aplicarFiltros(false);
-    }
+    // Los recuadros superiores solo navegan a la sección correspondiente.
+    // No cambian filtros ni recalculan la pantalla, para evitar que al pulsar
+    // un KPI con valor 0 parezca que desaparecen pedidos o se mezclan secciones.
+    const destino = sectionKey || 'completo';
     colapsarSecciones();
-    abrirSeccion(sectionKey || 'completo');
-    const panel = document.querySelector(`.panel.collapsible[data-section="${sectionKey || 'completo'}"]`);
+    abrirSeccion(destino);
+    const panel = document.querySelector(`.panel.collapsible[data-section="${destino}"]`);
     if(panel) panel.scrollIntoView({behavior:'smooth', block:'start'});
   }
 
