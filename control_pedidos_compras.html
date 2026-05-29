@@ -370,7 +370,7 @@
       const id = d.id;
       if(!id) return;
       const prev = data.mirror[id] || {};
-      const faltante = materialFaltanteDetectado(d) || prev.materialFaltante || '';
+      const faltante = materialFaltanteDetectado(d);
       const estado = estadoPedidoControl(d);
       data.mirror[id] = {
         id,
@@ -389,12 +389,16 @@
         actualizadoControl: new Date().toLocaleString('es-ES')
       };
 
+      const itemPrev = data.items[id] || {};
       if(faltante){
-        const itemPrev = data.items[id] || {};
         data.items[id] = Object.assign({}, itemPrev, {
           materialFaltanteHistorial: faltante,
           fechaMaterialFaltanteHistorial: new Date().toLocaleString('es-ES')
         });
+      }else if(itemPrev.materialFaltanteHistorial || itemPrev.fechaMaterialFaltanteHistorial){
+        data.items[id] = Object.assign({}, itemPrev);
+        delete data.items[id].materialFaltanteHistorial;
+        delete data.items[id].fechaMaterialFaltanteHistorial;
       }
     });
     saveControl(data);
@@ -525,7 +529,7 @@
       mat: d.material || d.mat || '',
       empresa: d.empresa || '',
       estado: estadoPedidoControl(d),
-      materialFaltante: materialFaltanteDetectado(d) || c.materialFaltanteHistorial || '',
+      materialFaltante: materialFaltanteDetectado(d) || ((d.recuperadoPorControl || d.recuperadoGlobalControl || d.faltantePendienteConfirmar) ? (c.materialFaltanteHistorial || '') : ''),
       pedidoFaltante: !!d.pedidoFaltante,
       faltantePendienteConfirmar: !!d.faltantePendienteConfirmar,
       faltanteConfirmadoHierros: !!c.faltanteConfirmadoHierros,
@@ -542,7 +546,30 @@
     };
   }
 
+
+  function limpiarFaltantesObsoletos(){
+    const data = loadControl();
+    const mirror = data.mirror || {};
+    let cambiado = false;
+
+    Object.keys(data.items || {}).forEach(id => {
+      const item = data.items[id] || {};
+      const m = mirror[id] || {};
+      const espejoTieneFaltante = !!txt(m.materialFaltante || m.comentarioParcial);
+      const espejoPendienteConfirmar = m.estado === 'entregado' && espejoTieneFaltante;
+
+      if((item.materialFaltanteHistorial || item.fechaMaterialFaltanteHistorial) && !espejoTieneFaltante && !espejoPendienteConfirmar){
+        delete item.materialFaltanteHistorial;
+        delete item.fechaMaterialFaltanteHistorial;
+        cambiado = true;
+      }
+    });
+
+    if(cambiado) saveControl(data);
+  }
+
   function recomponerPedidos(){
+    limpiarFaltantesObsoletos();
     const idsActuales = new Set();
     const actuales = pedidosRaw.map(doc => {
       const p = mapPedido(doc);
