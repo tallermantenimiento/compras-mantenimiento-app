@@ -423,6 +423,14 @@
       border-color:#2563eb !important;
     }
 
+
+    .estado-btn.parcial-activo,
+    .estado-btn.activo[data-estado="recibido"]{
+      background:#2563eb !important;
+      color:#fff !important;
+      border-color:#2563eb !important;
+    }
+
   </style>
  
 
@@ -777,7 +785,8 @@
     db.collection('pedidos').doc(pedidoParcialActualId).update({
       estado:'recibido',
       comentarioParcial: comentario,
-      fechaParcial: new Date().toLocaleString('es-ES')
+      fechaParcial: new Date().toLocaleString('es-ES'),
+      pedidoFaltante: false
     }).then(cerrarDialogoParcial).catch(function(err){
       alert('Error al guardar entrega parcial: ' + err);
     });
@@ -917,7 +926,7 @@
       const p=[];
       snapshot.forEach(d=>{
         const da=d.data()||{};
-        p.push({ id:d.id, fechaPedido:da.fechaPedido||'', fechaRecibido:da.fechaRecibido||'', ref:da.referencia||'', mat:da.material||'', empresa:da.empresa||'', importeCompra:da.importeCompra||'', proveedor:da.proveedor||'', estado:normalizarEstado(da.estado), comentarioParcial:da.comentarioParcial||'' });
+        p.push({ id:d.id, fechaPedido:da.fechaPedido||'', fechaRecibido:da.fechaRecibido||'', ref:da.referencia||'', mat:da.material||'', empresa:da.empresa||'', importeCompra:da.importeCompra||'', proveedor:da.proveedor||'', estado:normalizarEstado(da.estado), comentarioParcial:da.comentarioParcial||'', pedidoFaltante:!!da.pedidoFaltante });
       });
       renderPedidos(p);
     });
@@ -948,7 +957,7 @@
             </div>
         `;
 
-        tr.innerHTML=`<td>${fm}</td><td>${p.ref||''}</td><td>${materialCell}</td><td>${cellImpProv}</td><td><div class="empresa-pills" data-id="${p.id}">${eh}</div></td><td>${p.estado==="recibido" && p.comentarioParcial ? '<button type="button" class="parcial-note-pill" data-accion="abrirParcial" data-estado="recibido" data-id="'+p.id+'" data-ref="'+htmlAttr(p.ref||'')+'" data-mat="'+htmlAttr(p.mat||'')+'" data-comentario="'+htmlAttr(p.comentarioParcial||'')+'">Ver faltante</button>' : '<span class="estado-pill '+cl+'"><span class="dot"></span>'+tx+'</span>'}</td><td class="acciones-pedido"><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="pendiente" data-id="${p.id}">Pendiente</button><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="pedido" data-id="${p.id}">Pedido</button><button class="btn-sm estado-btn" data-accion="abrirParcial" data-estado="recibido" data-id="${p.id}" data-ref="${htmlAttr(p.ref||'')}" data-mat="${htmlAttr(p.mat||'')}" data-comentario="${htmlAttr(p.comentarioParcial||'')}">Entregado parcial</button><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="entregado" data-id="${p.id}">Entregado</button><button class="btn-sm danger" data-accion="anularPedido" data-id="${p.id}">Anular pedido</button></td>`;
+        tr.innerHTML=`<td>${fm}</td><td>${p.ref||''}</td><td>${materialCell}</td><td>${cellImpProv}</td><td><div class="empresa-pills" data-id="${p.id}">${eh}</div></td><td>${p.estado==="recibido" && p.comentarioParcial ? '<button type="button" class="parcial-note-pill" data-accion="abrirParcial" data-estado="recibido" data-id="'+p.id+'" data-ref="'+htmlAttr(p.ref||'')+'" data-mat="'+htmlAttr(p.mat||'')+'" data-comentario="'+htmlAttr(p.comentarioParcial||'')+'">Ver faltante</button>' : '<span class="estado-pill '+cl+'"><span class="dot"></span>'+tx+'</span>'}</td><td class="acciones-pedido"><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="pendiente" data-id="${p.id}">Pendiente</button><button class="btn-sm estado-btn ${p.comentarioParcial && p.pedidoFaltante?'parcial-activo':''}" data-accion="${p.comentarioParcial?'pedidoFaltante':'setEstado'}" data-estado="pedido" data-id="${p.id}">${p.comentarioParcial?(p.pedidoFaltante?'Pedido faltante':'Pedir faltante'):'Pedido'}</button><button class="btn-sm estado-btn" data-accion="abrirParcial" data-estado="recibido" data-id="${p.id}" data-ref="${htmlAttr(p.ref||'')}" data-mat="${htmlAttr(p.mat||'')}" data-comentario="${htmlAttr(p.comentarioParcial||'')}">Entregado parcial</button><button class="btn-sm estado-btn" data-accion="setEstado" data-estado="entregado" data-id="${p.id}">${p.comentarioParcial?'Entregar faltante':'Entregado'}</button><button class="btn-sm danger" data-accion="anularPedido" data-id="${p.id}">Anular pedido</button></td>`;
         const b=tr.querySelectorAll('.estado-btn'); b.forEach(bt=>{if(bt.dataset.estado===p.estado)bt.classList.add('activo');});
         if(p.empresa){ const c=tr.querySelector('.empresa-pills'); if(c){ const bt=c.querySelector(`.pill-empresa[data-empresa="${p.empresa}"]`); if(bt) bt.classList.add('activa'); } }
         tbodyActivos.appendChild(tr);
@@ -1163,12 +1172,25 @@
       return;
     }
 
+    if(b.dataset.accion==='pedidoFaltante'){
+      db.collection('pedidos').doc(b.dataset.id).update({
+        estado:'pedido',
+        pedidoFaltante:true,
+        fechaPedidoFaltante:new Date().toLocaleString('es-ES')
+      }).catch(function(err){
+        alert('Error al marcar pedido faltante: ' + err);
+      });
+      return;
+    }
+
     if(b.dataset.accion==='setEstado'){ 
       const d={estado:b.dataset.estado}; 
       if(d.estado==='entregado'){
         d.fechaRecibido=new Date().toLocaleString('es-ES');
         d.comentarioParcial = firebase.firestore.FieldValue.delete();
         d.fechaParcial = firebase.firestore.FieldValue.delete();
+        d.pedidoFaltante = firebase.firestore.FieldValue.delete();
+        d.fechaPedidoFaltante = firebase.firestore.FieldValue.delete();
       }
       db.collection('pedidos').doc(b.dataset.id).update(d); 
     }
