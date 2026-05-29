@@ -785,8 +785,10 @@
     db.collection('pedidos').doc(pedidoParcialActualId).update({
       estado:'recibido',
       comentarioParcial: comentario,
+      faltanteTexto: comentario,
       fechaParcial: new Date().toLocaleString('es-ES'),
-      pedidoFaltante: false
+      pedidoFaltante: false,
+      faltantePendienteConfirmar: false
     }).then(cerrarDialogoParcial).catch(function(err){
       alert('Error al guardar entrega parcial: ' + err);
     });
@@ -1176,7 +1178,8 @@
       db.collection('pedidos').doc(b.dataset.id).update({
         estado:'pedido',
         pedidoFaltante:true,
-        fechaPedidoFaltante:new Date().toLocaleString('es-ES')
+        fechaPedidoFaltante:new Date().toLocaleString('es-ES'),
+        faltantePendienteConfirmar:false
       }).catch(function(err){
         alert('Error al marcar pedido faltante: ' + err);
       });
@@ -1187,6 +1190,17 @@
       const d={estado:b.dataset.estado}; 
       if(d.estado==='entregado'){
         d.fechaRecibido=new Date().toLocaleString('es-ES');
+
+        const row = b.closest('tr');
+        const btnParcial = row ? row.querySelector('button[data-accion="abrirParcial"]') : null;
+        const faltanteActual = btnParcial ? (btnParcial.dataset.comentario || '') : '';
+
+        if(faltanteActual){
+          d.faltantePendienteConfirmar = true;
+          d.faltanteEntregadoTexto = faltanteActual;
+          d.fechaEntregaFaltante = new Date().toLocaleString('es-ES');
+        }
+
         d.comentarioParcial = firebase.firestore.FieldValue.delete();
         d.fechaParcial = firebase.firestore.FieldValue.delete();
         d.pedidoFaltante = firebase.firestore.FieldValue.delete();
