@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Control pedidos · Los del hierros · FIX9 botones sin filtros</title>
+  <title>Control pedidos · Los del hierros</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="./sklum_icon.ico" type="image/x-icon">
   <link rel="shortcut icon" href="./sklum_icon.ico" type="image/x-icon">
@@ -26,11 +26,8 @@
     .panel h2{font-size:14px;font-weight:800;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;}
     .badge{font-size:11px;padding:2px 8px;border-radius:999px;background:var(--accent-soft);color:var(--muted);}
     .badge.alert{background:#fee2e2;color:#b91c1c;}
-    .top-grid{display:grid;grid-template-columns:repeat(6,minmax(120px,1fr));gap:10px;}
-    .kpi{background:#f9fafb;border:1px solid var(--border);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:4px;text-align:left;color:inherit;}
-    button.kpi{cursor:pointer;}
-    button.kpi:hover{background:#eef2ff;border-color:#93c5fd;box-shadow:0 4px 12px rgba(37,99,235,.12);transform:translateY(-1px);}
-    button.kpi:active{transform:scale(.99);}
+    .top-grid{display:grid;grid-template-columns:repeat(7,minmax(120px,1fr));gap:10px;}
+    .kpi{background:#f9fafb;border:1px solid var(--border);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:4px;}
     .kpi .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
     .kpi .value{font-size:24px;font-weight:900;color:#111827;line-height:1;}
     .kpi.pendiente .value{color:var(--orange);}
@@ -73,12 +70,6 @@
     .estado-recibido{background:#dbeafe;border-color:#60a5fa;color:#1d4ed8;}
     .estado-entregado{background:#dcfce7;border-color:#22c55e;color:#166534;}
     .estado-anulado{background:#fee2e2;border-color:#ef4444;color:#991b1b;}
-    .faltante-toggle{display:inline-flex;margin-top:4px;font-size:10px;padding:2px 7px;border-radius:999px;background:#dc2626;border:1px solid #991b1b;color:#ffffff;font-weight:900;white-space:nowrap;cursor:pointer;box-shadow:0 1px 3px rgba(153,27,27,.25);}
-    .faltante-toggle:hover{background:#b91c1c;}
-    .section-alert-pill{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 7px;border-radius:999px;background:#dc2626;border:1px solid #991b1b;color:#ffffff;font-weight:900;white-space:nowrap;box-shadow:0 1px 3px rgba(153,27,27,.22);}
-    .partial-box{margin-top:6px;padding:9px 11px;border-radius:10px;background:#eff6ff;border:1px solid #93c5fd;color:#1e3a8a;font-size:11px;line-height:1.45;display:none;white-space:pre-line;overflow-wrap:normal;word-break:normal;min-width:340px;max-width:560px;text-align:left;}
-    .partial-box.open{display:block;}
-    .partial-box strong{display:block;margin-bottom:3px;}
     .confirm-pill{display:inline-flex;margin-top:4px;font-size:10px;padding:2px 7px;border-radius:999px;background:#ecfdf5;border:1px solid #22c55e;color:#166534;font-weight:800;white-space:nowrap;}
     .pending-confirm-pill{display:inline-flex;margin-top:4px;font-size:10px;padding:2px 7px;border-radius:999px;background:#fffbeb;border:1px solid #fbbf24;color:#92400e;font-weight:800;white-space:nowrap;}
     .inc-pill{display:inline-flex;margin-top:4px;font-size:10px;padding:2px 7px;border-radius:999px;background:#fff7ed;border:1px solid #fb923c;color:#9a3412;font-weight:800;white-space:nowrap;}
@@ -112,6 +103,17 @@
     .footer-note{padding:6px 18px 16px;font-size:11px;color:#9ca3af;text-align:center;}
     @media(max-width:1100px){.top-grid{grid-template-columns:repeat(2,minmax(120px,1fr));}main{padding:10px 12px;}}
     @media(max-width:700px){table{display:block;overflow-x:auto;min-width:720px;}.material-cell{min-width:260px}.top-grid{grid-template-columns:1fr;}header{align-items:flex-start;}.sector-pill{font-size:11px;}.field.search{min-width:100%;}}
+
+    .faltante-pill{
+      display:inline-flex;margin-top:4px;font-size:10px;padding:2px 7px;border-radius:999px;
+      background:#fffbeb;border:1px solid #fbbf24;color:#92400e;font-weight:800;white-space:nowrap;
+    }
+    .faltante-pill.alert{
+      background:#fef2f2;border-color:#f87171;color:#b91c1c;
+    }
+    .btn-ver-faltante{background:#fffbeb;border-color:#fbbf24;color:#92400e;font-weight:800;}
+    .btn-confirmar-faltante{background:#eff6ff;border-color:#60a5fa;color:#1d4ed8;font-weight:800;}
+
   </style>
 
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
@@ -133,14 +135,15 @@
   <section class="panel">
     <h2>Estado general <span class="badge" id="connectionBadge">Conectando...</span></h2>
     <div class="top-grid">
-      <button type="button" class="kpi" data-kpi-section="completo" data-kpi-filter="todos" title="Abrir listado completo"><span class="label">Total sector</span><span class="value" id="kpiTotal">0</span></button>
-      <button type="button" class="kpi pendiente" data-kpi-section="activos" data-kpi-filter="pendiente" title="Abrir pedidos activos"><span class="label">Pendientes</span><span class="value" id="kpiPendiente">0</span></button>
-      <button type="button" class="kpi recibido" data-kpi-section="activos" data-kpi-filter="recibido" title="Abrir pedidos activos"><span class="label">Entregado parcial</span><span class="value" id="kpiRecibido">0</span></button>
-      <button type="button" class="kpi entregado" data-kpi-section="entregados" data-kpi-filter="entregado_confirmado" title="Abrir entregados confirmados"><span class="label">Entregados</span><span class="value" id="kpiEntregado">0</span></button>
-      <button type="button" class="kpi confirmar" data-kpi-section="confirmar" data-kpi-filter="por_confirmar" title="Abrir entregas por confirmar"><span class="label">Por confirmar</span><span class="value" id="kpiConfirmar">0</span></button>
-      <button type="button" class="kpi anulado" data-kpi-section="anulados" data-kpi-filter="anulado" title="Abrir anulados"><span class="label">Anulados</span><span class="value" id="kpiAnulado">0</span></button>
+      <div class="kpi"><span class="label">Total sector</span><span class="value" id="kpiTotal">0</span></div>
+      <div class="kpi pendiente"><span class="label">Pendientes</span><span class="value" id="kpiPendiente">0</span></div>
+      <div class="kpi pedido"><span class="label">Pedidos</span><span class="value" id="kpiPedido">0</span></div>
+      <div class="kpi recibido"><span class="label">En taller</span><span class="value" id="kpiRecibido">0</span></div>
+      <div class="kpi entregado"><span class="label">Entregados</span><span class="value" id="kpiEntregado">0</span></div>
+      <div class="kpi confirmar"><span class="label">Por confirmar</span><span class="value" id="kpiConfirmar">0</span></div>
+      <div class="kpi anulado"><span class="label">Anulados</span><span class="value" id="kpiAnulado">0</span></div>
     </div>
-    <div class="hint" id="systemHint">Este programa lee los pedidos reales de Compras del sector los-del-hierros. Incluye blindaje interno para entregas parciales convertidas a entregado. Tus confirmaciones, incidencias y borrados de vista son solo internos de este ordenador.</div>
+    <div class="hint" id="systemHint">Este programa lee los pedidos reales de Compras del sector los-del-hierros. Refleja entregas parciales, pedidos faltantes y faltantes entregados pendientes de confirmar. Tus confirmaciones, incidencias y borrados de vista son solo internos de este ordenador.</div>
   </section>
 
   <section class="panel filters">
@@ -157,7 +160,7 @@
           <option value="activos">Activos</option>
           <option value="pendiente">Pendiente</option>
           <option value="pedido">Pedido</option>
-          <option value="recibido">Entregado parcial</option>
+          <option value="recibido">En taller</option>
           <option value="por_confirmar">Entregas por confirmar</option>
           <option value="entregado_confirmado">Entregados confirmados</option>
           <option value="anulado">Anulado</option>
@@ -226,12 +229,10 @@
   const SECTOR = 'los-del-hierros';
   const STORAGE_KEY = 'ldh_control_hierros_v1';
   let pedidosRaw = [];
-  let pedidosGlobalRaw = [];
   let pedidos = [];
   let filtrados = [];
   let incidenciaPedidoActual = null;
   let unsubPedidos = null;
-  let unsubPedidosGlobalControl = null;
 
   const $ = id => document.getElementById(id);
   const searchInput = $('searchInput');
@@ -245,59 +246,22 @@
   function escapeHtml(v){
     return txt(v).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   }
-  function formatoFaltante(v){
-    return txt(v)
-      .replace(/\\r\\n|\\n|\\r/g, '\n')
-      .replace(/\r\n|\r/g, '\n')
-      .replace(/\s+$/gm, '')
-      .trim();
-  }
   function normalizarEstado(e){
-    const raw = txt(e) || 'pendiente';
-    const n = normalizar(raw);
-
-    if(n === 'recibido' || n === 'en-taller' || n === 'entrega-parcial' || n === 'entregado-parcial' || (n.includes('parcial') && n.includes('entreg'))) return 'recibido';
-    if(n === 'entregado' || n === 'entrega-completa' || n === 'por-confirmar' || (n.includes('entreg') && !n.includes('parcial'))) return 'entregado';
-    if(n === 'pedido' || n.includes('pedido')) return 'pedido';
-    if(n === 'anulado' || n.includes('anulad')) return 'anulado';
+    e = txt(e) || 'pendiente';
+    if(e === 'recibido') return 'recibido';
+    if(e === 'entregado') return 'entregado';
+    if(e === 'pedido') return 'pedido';
+    if(e === 'anulado') return 'anulado';
     return 'pendiente';
   }
-  function estadoPedidoControl(d){
-    const estadoBase = normalizarEstado(d.estado || d.status || d.estadoPedido || d.estadoCompra || 'pendiente');
-
-    // Blindaje: si Compras ya lo ha marcado como entregado/por confirmar, debe aparecer en
-    // "Entregas por confirmar" aunque el pedido conserve datos de una entrega parcial anterior.
-    const camposEntrega = [
-      d.estado, d.status, d.estadoPedido, d.estadoCompra, d.estadoEntrega,
-      d.resultadoEntrega, d.situacion, d.fase
-    ].map(v => normalizar(v)).join(' ');
-    const flagsEntrega = [
-      d.entregado, d.esEntregado, d.pedidoEntregado, d.entregaCompleta,
-      d.entregaFinalizada, d.confirmarEntrega, d.pendienteConfirmarEntrega
-    ].some(v => v === true || v === 'true' || v === 1 || v === '1');
-
-    if((camposEntrega.includes('entreg') && !camposEntrega.includes('parcial')) || camposEntrega.includes('por-confirmar') || flagsEntrega){
-      return 'entregado';
-    }
-    return estadoBase;
-  }
   function estadoTexto(e){
-    return {pendiente:'Pendiente',pedido:'Pedido',recibido:'Entregado parcial',entregado:'Entregado',anulado:'Anulado'}[e] || 'Pendiente';
+    return {pendiente:'Pendiente',pedido:'Pedido',recibido:'En taller',entregado:'Entregado',anulado:'Anulado'}[e] || 'Pendiente';
   }
   function estadoClase(e){
     return 'estado-' + (e || 'pendiente');
   }
-  function pillEstado(e, p){
-    const texto = estadoTexto(e);
-    const tieneParcial = p && txt(p.materialFaltante);
-    if(e === 'recibido' || (e === 'entregado' && tieneParcial)){
-      const detalle = formatoFaltante(p && p.materialFaltante) || 'No hay comentario de faltante guardado en el pedido. Revisa si Compras está enviando el campo del diálogo de entrega parcial.';
-      const titulo = e === 'entregado' ? 'Anotación de entrega parcial anterior:' : 'Material pendiente:';
-      return `<span class="estado-pill ${estadoClase(e)}"><span class="dot"></span>${texto}</span>
-        <button type="button" class="faltante-toggle" data-accion="toggleParcial">Ver faltante ▾</button>
-        <div class="partial-box" data-role="partialBox"><strong>${titulo}</strong>${escapeHtml(detalle)}</div>`;
-    }
-    return `<span class="estado-pill ${estadoClase(e)}"><span class="dot"></span>${texto}</span>`;
+  function pillEstado(e){
+    return `<span class="estado-pill ${estadoClase(e)}"><span class="dot"></span>${estadoTexto(e)}</span>`;
   }
 
   function loadControl(){
@@ -306,10 +270,9 @@
       const data = raw ? JSON.parse(raw) : {};
       data.items = data.items || {};
       data.hidden = data.hidden || {};
-      data.mirror = data.mirror || {};
       return data;
     }catch(e){
-      return {items:{},hidden:{},mirror:{}};
+      return {items:{},hidden:{}};
     }
   }
   function saveControl(data){
@@ -334,163 +297,6 @@
     return !!data.hidden[id];
   }
 
-
-  function docDataPlano(doc){
-    const d = doc && doc.data ? (doc.data() || {}) : (doc || {});
-    return Object.assign({}, d, { id: (doc && doc.id) || d.id || '' });
-  }
-
-  function guardarEspejoPedidos(docs){
-    const data = loadControl();
-    data.mirror = data.mirror || {};
-    docs.forEach(doc => {
-      const d = docDataPlano(doc);
-      const id = d.id;
-      if(!id) return;
-      const prev = data.mirror[id] || {};
-      const faltante = materialFaltanteDetectado(d) || prev.materialFaltante || '';
-      const estado = estadoPedidoControl(d);
-      data.mirror[id] = {
-        id,
-        sector: d.sector || SECTOR,
-        fechaPedido: d.fechaPedido || prev.fechaPedido || '',
-        fechaRecibido: d.fechaRecibido || prev.fechaRecibido || '',
-        referencia: d.referencia || d.ref || prev.referencia || '',
-        ref: d.ref || d.referencia || prev.ref || '',
-        material: d.material || d.mat || prev.material || '',
-        mat: d.mat || d.material || prev.mat || '',
-        empresa: d.empresa || prev.empresa || '',
-        estado,
-        materialFaltante: faltante,
-        comentarioParcial: faltante,
-        vistoEnFirestore: true,
-        actualizadoControl: new Date().toLocaleString('es-ES')
-      };
-
-      if(faltante){
-        const itemPrev = data.items[id] || {};
-        data.items[id] = Object.assign({}, itemPrev, {
-          materialFaltanteHistorial: faltante,
-          fechaMaterialFaltanteHistorial: new Date().toLocaleString('es-ES')
-        });
-      }
-    });
-    saveControl(data);
-  }
-
-
-  function idsParcialesVigilados(){
-    const data = loadControl();
-    const mirror = data.mirror || {};
-    const out = new Set();
-    Object.keys(mirror).forEach(id => {
-      const m = mirror[id] || {};
-      if((m.sector || SECTOR) !== SECTOR) return;
-      if(m.estado === 'recibido' || txt(m.materialFaltante) || txt(m.comentarioParcial)) out.add(id);
-    });
-    return out;
-  }
-
-  function docsGlobalesParcialesVigilados(idsActuales){
-    const vigilados = idsParcialesVigilados();
-    if(!vigilados.size) return [];
-    const data = loadControl();
-    return pedidosGlobalRaw.filter(doc => {
-      const d = docDataPlano(doc);
-      if(!d.id || idsActuales.has(d.id)) return false;
-      if(!vigilados.has(d.id)) return false;
-      const c = (data.items || {})[d.id] || {};
-      if(c.confirmadoEntregaHierros) return false;
-      return true;
-    }).map(doc => {
-      const d = docDataPlano(doc);
-      const m = (loadControl().mirror || {})[d.id] || {};
-      const faltante = materialFaltanteDetectado(d) || m.materialFaltante || m.comentarioParcial || '';
-      return Object.assign({}, m, d, {
-        id: d.id,
-        sector: SECTOR,
-        estado: estadoPedidoControl(d) === 'entregado' ? 'entregado' : estadoPedidoControl(d),
-        materialFaltante: faltante,
-        comentarioParcial: faltante,
-        recuperadoGlobalControl: true
-      });
-    });
-  }
-
-  function pedidosEspejoDesaparecidos(idsActuales){
-    const data = loadControl();
-    const mirror = data.mirror || {};
-    return Object.keys(mirror).map(id => mirror[id]).filter(m => {
-      if(!m || !m.id) return false;
-      if(idsActuales.has(m.id)) return false;
-      if(isHidden(m.id)) return false;
-      if((m.sector || SECTOR) !== SECTOR) return false;
-      const c = (data.items || {})[m.id] || {};
-      if(c.confirmadoEntregaHierros) return false;
-      return m.estado === 'recibido' || !!m.materialFaltante;
-    }).map(m => Object.assign({}, m, {
-      estado: 'entregado',
-      recuperadoPorControl: true,
-      fechaRecibido: m.fechaRecibido || m.actualizadoControl || ''
-    }));
-  }
-
-  function pedidosEspejoAnuladosDesaparecidos(idsActuales){
-    const data = loadControl();
-    const mirror = data.mirror || {};
-    return Object.keys(mirror).map(id => mirror[id]).filter(m => {
-      if(!m || !m.id) return false;
-      if(idsActuales.has(m.id)) return false;
-      if(isHidden(m.id)) return false;
-      if((m.sector || SECTOR) !== SECTOR) return false;
-      const c = (data.items || {})[m.id] || {};
-      if(c.confirmadoEntregaHierros) return false;
-      if(m.estado === 'entregado') return false;
-      if(m.estado === 'recibido' || !!m.materialFaltante) return false;
-      return ['pendiente','pedido'].includes(m.estado);
-    }).map(m => Object.assign({}, m, {
-      estado: 'anulado',
-      anuladoPorComprasControl: true,
-      fechaRecibido: m.fechaRecibido || m.actualizadoControl || ''
-    }));
-  }
-
-  function materialFaltanteDetectado(d){
-    const direct = d.materialFaltante || d.materialPendiente || d.faltante || d.parcialDetalle || d.entregaParcialDetalle || d.entregadoParcialDetalle || d.detalleFaltante || d.comentarioFaltante || d.comentarioParcial || d.notaFaltante || d.notaParcial || d.observacionFaltante || d.observacionParcial || d.motivoParcial || '';
-    if(txt(direct)) return direct;
-
-    const clavesBuenas = /falt|parcial|pendient|coment|observ|nota|motivo|restante|recibir/i;
-    const clavesMalas = /fecha|estado|sector|empresa|referencia|ref|id|material$|mat$|created|updated|timestamp|usuario|user/i;
-    const vistos = new Set();
-
-    function buscar(obj, pref){
-      if(!obj || typeof obj !== 'object' || vistos.has(obj)) return '';
-      vistos.add(obj);
-      for(const k of Object.keys(obj)){
-        const v = obj[k];
-        const ruta = pref ? pref + '.' + k : k;
-        if(v == null) continue;
-        if(typeof v === 'string' || typeof v === 'number'){
-          const valor = txt(v);
-          if(valor && clavesBuenas.test(ruta) && !clavesMalas.test(ruta)) return valor;
-        }else if(typeof v === 'object'){
-          const encontrado = buscar(v, ruta);
-          if(encontrado) return encontrado;
-        }
-      }
-      return '';
-    }
-
-    const porClave = buscar(d, '');
-    if(porClave) return porClave;
-
-    const mat = txt(d.material || d.mat);
-    if(!mat) return '';
-    const lineas = mat.split(/\n|\.|;/).map(s => s.trim()).filter(Boolean);
-    const hit = lineas.find(s => /pendiente|faltan|falta|por recibir|sin recibir|resta|restan/i.test(s));
-    return hit || '';
-  }
-
   function mapPedido(doc){
     const d = doc.data ? (doc.data() || {}) : (doc || {});
     const id = doc.id || d.id || '';
@@ -502,11 +308,15 @@
       ref: d.referencia || d.ref || '',
       mat: d.material || d.mat || '',
       empresa: d.empresa || '',
-      estado: estadoPedidoControl(d),
-      materialFaltante: materialFaltanteDetectado(d) || c.materialFaltanteHistorial || '',
-      recuperadoPorControl: !!d.recuperadoPorControl,
-      recuperadoGlobalControl: !!d.recuperadoGlobalControl,
-      anuladoPorComprasControl: !!d.anuladoPorComprasControl,
+      estado: normalizarEstado(d.estado),
+      comentarioParcial: d.comentarioParcial || '',
+      faltanteTexto: d.faltanteTexto || d.comentarioParcial || '',
+      pedidoFaltante: !!d.pedidoFaltante,
+      faltantePendienteConfirmar: !!d.faltantePendienteConfirmar,
+      faltanteEntregadoTexto: d.faltanteEntregadoTexto || d.faltanteTexto || '',
+      fechaEntregaFaltante: d.fechaEntregaFaltante || '',
+      faltanteConfirmadoHierros: !!c.faltanteConfirmadoHierros,
+      fechaConfirmacionFaltanteHierros: c.fechaConfirmacionFaltanteHierros || '',
       confirmadoEntregaHierros: !!c.confirmadoEntregaHierros,
       fechaConfirmacionHierros: c.fechaConfirmacionHierros || '',
       incidenciaHierros: c.incidenciaHierros || '',
@@ -517,33 +327,29 @@
   }
 
   function recomponerPedidos(){
-    const idsActuales = new Set();
-    const actuales = pedidosRaw.map(doc => {
-      const p = mapPedido(doc);
-      if(p.id) idsActuales.add(p.id);
-      return p;
-    });
-
-    const globalesVigilados = docsGlobalesParcialesVigilados(idsActuales).map(mapPedido);
-    globalesVigilados.forEach(p => { if(p.id) idsActuales.add(p.id); });
-
-    const recuperados = pedidosEspejoDesaparecidos(idsActuales).map(mapPedido);
-    recuperados.forEach(p => { if(p.id) idsActuales.add(p.id); });
-
-    const anuladosRecuperados = pedidosEspejoAnuladosDesaparecidos(idsActuales).map(mapPedido);
-    const todos = actuales.concat(globalesVigilados, recuperados, anuladosRecuperados);
-
-    // Blindaje adicional: si el pedido venía de entrega parcial, no lo ocultamos por un
-    // borrado antiguo del navegador mientras siga pendiente de confirmar en Control.
-    pedidos = todos.filter(p => {
-      if(!p || !p.id) return false;
-      const c = getControlItem(p.id);
-      const vieneDeParcial = !!(p.materialFaltante || c.materialFaltanteHistorial);
-      if(vieneDeParcial && p.estado === 'entregado' && !p.confirmadoEntregaHierros) return true;
-      return !isHidden(p.id);
-    });
+    pedidos = pedidosRaw.map(mapPedido).filter(p => !isHidden(p.id));
     actualizarEmpresas();
     aplicarFiltros(false);
+  }
+
+  function estadoPedidoControlHtml(p){
+    if(p.faltantePendienteConfirmar && !p.faltanteConfirmadoHierros){
+      return '<span class="faltante-pill alert">Faltante entregado · confirmar recepción</span>';
+    }
+    if(p.faltantePendienteConfirmar && p.faltanteConfirmadoHierros){
+      return '<span class="faltante-pill">Faltante confirmado</span>';
+    }
+    if(p.comentarioParcial || p.faltanteTexto){
+      if(p.pedidoFaltante) return '<span class="faltante-pill">Pedido faltante</span>';
+      if(p.estado === 'recibido') return '<span class="faltante-pill">Entregado parcial</span>';
+    }
+    return pillEstado(p.estado);
+  }
+
+  function faltanteHtml(p){
+    const texto = p.comentarioParcial || p.faltanteTexto || p.faltanteEntregadoTexto || '';
+    if(!texto) return '';
+    return `<button type="button" class="btn-sm btn-ver-faltante" data-accion="verFaltanteControl" data-id="${escapeHtml(p.id)}">Ver faltante</button>`;
   }
 
   function confirmacionEntregaHtml(p){
@@ -552,7 +358,6 @@
       const f = p.fechaConfirmacionHierros ? ' · ' + escapeHtml(p.fechaConfirmacionHierros) : '';
       return `<span class="confirm-pill">Confirmado${f}</span>`;
     }
-    if(tieneFaltanteHistorico(p)) return '<span class="pending-confirm-pill">Pendiente de confirmar</span><span class="section-alert-pill" style="margin-top:4px;">⚠ venía con faltante</span>';
     return '<span class="pending-confirm-pill">Pendiente de confirmar</span>';
   }
   function incidenciaActiva(p){
@@ -562,10 +367,6 @@
     if(!p.incidenciaHierros) return '';
     if(p.incidenciaHierrosResuelta) return '<span class="inc-pill resuelta">Incidencia resuelta</span>';
     return '<span class="inc-pill">Incidencia abierta</span>';
-  }
-  function alertaAnuladoHtml(p){
-    if(p && p.estado === 'anulado') return '<span class="section-alert-pill" style="margin-top:4px;">⚠ anulado</span>';
-    return '';
   }
   function permiteIncidencia(p){
     return p.estado !== 'anulado' && (p.estado !== 'entregado' || !p.confirmadoEntregaHierros);
@@ -579,7 +380,9 @@
   }
   function accionesHtml(p){
     const acciones = [];
-    if(p.estado === 'entregado' && !p.confirmadoEntregaHierros){
+    if(p.faltantePendienteConfirmar && !p.faltanteConfirmadoHierros){
+      acciones.push(`<button class="btn-sm btn-confirmar-faltante" data-accion="confirmarFaltante" data-id="${escapeHtml(p.id)}">Confirmar faltante</button>`);
+    } else if(p.estado === 'entregado' && !p.confirmadoEntregaHierros){
       acciones.push(`<button class="btn-sm btn-confirmar" data-accion="confirmarEntrega" data-id="${escapeHtml(p.id)}">Confirmar entrega</button>`);
     }
     const inc = incidenciaBotonHtml(p);
@@ -644,7 +447,7 @@
         <td>${escapeHtml(p.ref || p.referencia)}</td>
         <td class="material-cell">${materialHtml(p)}</td>
         <td>${escapeHtml(p.empresa || '')}</td>
-        <td>${pillEstado(p.estado, p)}${confirmacionEntregaHtml(p)}${incidenciaHtml(p)}${alertaAnuladoHtml(p)}</td>
+        <td>${estadoPedidoControlHtml(p)}${faltanteHtml(p)}${confirmacionEntregaHtml(p)}${incidenciaHtml(p)}</td>
         <td>${accionesHtml(p)}</td>
       </tr>`;
     });
@@ -694,7 +497,7 @@
     }
     abrirSeccion('completo');
     if(filtrados.some(p => ['pendiente','pedido','recibido'].includes(p.estado))) abrirSeccion('activos');
-    if(filtrados.some(p => p.estado === 'entregado' && !p.confirmadoEntregaHierros)) abrirSeccion('confirmar');
+    if(filtrados.some(p => (p.faltantePendienteConfirmar && !p.faltanteConfirmadoHierros) || (p.estado === 'entregado' && !p.confirmadoEntregaHierros))) abrirSeccion('confirmar');
     if(filtrados.some(p => p.estado === 'entregado' && p.confirmadoEntregaHierros)) abrirSeccion('entregados');
     if(filtrados.some(p => p.estado === 'anulado')) abrirSeccion('anulados');
   }
@@ -709,14 +512,13 @@
       const empresa = normalizar(p.empresa);
       const estado = normalizar(p.estado);
       const fecha = normalizar([p.fechaPedido,p.fechaRecibido].join(' '));
-      const faltante = normalizar(p.materialFaltante);
-      const baseBusqueda = `${ref} ${material} ${faltante} ${empresa} ${estado} ${normalizar(estadoTexto(p.estado))} ${fecha}`;
+      const baseBusqueda = `${ref} ${material} ${empresa} ${estado} ${fecha}`;
       const partes = q.split('-').filter(Boolean);
       const qOk = !q || ref.startsWith(q) || ref.includes(q) || baseBusqueda.includes(q) || partes.every(parte => baseBusqueda.includes(parte));
       let eOk;
       if(est === 'todos') eOk = true;
       else if(est === 'activos') eOk = ['pendiente','pedido','recibido'].includes(p.estado);
-      else if(est === 'por_confirmar') eOk = p.estado === 'entregado' && !p.confirmadoEntregaHierros;
+      else if(est === 'por_confirmar') eOk = (p.faltantePendienteConfirmar && !p.faltanteConfirmadoHierros) || (p.estado === 'entregado' && !p.confirmadoEntregaHierros);
       else if(est === 'entregado_confirmado') eOk = p.estado === 'entregado' && p.confirmadoEntregaHierros;
       else eOk = p.estado === est;
       const empOk = emp === 'todas' || txt(p.empresa) === emp;
@@ -727,46 +529,17 @@
     abrirResultadosSiProcede(autoOpen);
   }
 
-  function tieneFaltanteHistorico(p){
-    return !!(p && txt(p.materialFaltante));
-  }
-  function esEntregadoConFaltantePendiente(p){
-    return !!(p && p.estado === 'entregado' && !p.confirmadoEntregaHierros && tieneFaltanteHistorico(p));
-  }
-  function esAnuladoAlertable(p){
-    return !!(p && p.estado === 'anulado');
-  }
-  function actualizarBadgeSeccion(id, total, alerta, texto){
-    const badge = $(id);
-    if(!badge) return;
-    badge.textContent = total;
-    badge.className = 'badge' + (total ? ' alert' : '');
-
-    const titleLeft = badge.closest('.title-left');
-    if(!titleLeft) return;
-
-    // Limpia cualquier alerta anterior de esta cabecera, incluso si venía de una versión previa.
-    titleLeft.querySelectorAll('.section-alert-pill').forEach(el => el.remove());
-
-    if(alerta > 0){
-      const span = document.createElement('span');
-      span.className = 'section-alert-pill';
-      span.dataset.alertFor = id;
-      span.textContent = `⚠ ${alerta} ${texto}`;
-      badge.insertAdjacentElement('afterend', span);
-    }
-  }
-
   function renderKpis(){
     const total = filtrados.length;
     const pendiente = filtrados.filter(p=>p.estado==='pendiente').length;
     const pedido = filtrados.filter(p=>p.estado==='pedido').length;
-    const recibido = filtrados.filter(p=>p.estado==='recibido').length;
+    const recibido = filtrados.filter(p=>p.estado==='recibido' || p.comentarioParcial || p.pedidoFaltante).length;
     const entregado = filtrados.filter(p=>p.estado==='entregado').length;
-    const confirmar = filtrados.filter(p=>p.estado==='entregado' && !p.confirmadoEntregaHierros).length;
+    const confirmar = filtrados.filter(p=>(p.faltantePendienteConfirmar && !p.faltanteConfirmadoHierros) || (p.estado==='entregado' && !p.confirmadoEntregaHierros)).length;
     const anulado = filtrados.filter(p=>p.estado==='anulado').length;
     $('kpiTotal').textContent = total;
     $('kpiPendiente').textContent = pendiente;
+    $('kpiPedido').textContent = pedido;
     $('kpiRecibido').textContent = recibido;
     $('kpiEntregado').textContent = entregado;
     $('kpiConfirmar').textContent = confirmar;
@@ -774,18 +547,15 @@
   }
   function renderTodo(){
     renderKpis();
-    const activos = filtrados.filter(p => ['pendiente','pedido','recibido'].includes(p.estado));
-    const confirmar = filtrados.filter(p => p.estado === 'entregado' && !p.confirmadoEntregaHierros);
-    const entregados = filtrados.filter(p => p.estado === 'entregado' && p.confirmadoEntregaHierros);
+    const activos = filtrados.filter(p => ['pendiente','pedido','recibido'].includes(p.estado) && !(p.faltantePendienteConfirmar && !p.faltanteConfirmadoHierros));
+    const confirmar = filtrados.filter(p => (p.faltantePendienteConfirmar && !p.faltanteConfirmadoHierros) || (p.estado === 'entregado' && !p.confirmadoEntregaHierros));
+    const entregados = filtrados.filter(p => p.estado === 'entregado' && p.confirmadoEntregaHierros && (!p.faltantePendienteConfirmar || p.faltanteConfirmadoHierros));
     const anulados = filtrados.filter(p => p.estado === 'anulado');
 
-    const confirmarConFaltante = confirmar.filter(esEntregadoConFaltantePendiente).length;
-    const anuladosAlertables = anulados.filter(esAnuladoAlertable).length;
-
     $('badgeActivos').textContent = activos.length;
-    actualizarBadgeSeccion('badgeConfirmar', confirmar.length, confirmarConFaltante, 'con faltante');
+    $('badgeConfirmar').textContent = confirmar.length;
     $('badgeEntregados').textContent = entregados.length;
-    actualizarBadgeSeccion('badgeAnulados', anulados.length, anuladosAlertables, 'anulado');
+    $('badgeAnulados').textContent = anulados.length;
     $('badgeCompleto').textContent = filtrados.length;
 
     $('activosBody').innerHTML = tablaHTML(activos, 'activos');
@@ -793,6 +563,13 @@
     $('entregadosBody').innerHTML = tablaHTML(entregados, 'entregados');
     $('anuladosBody').innerHTML = tablaHTML(anulados, 'anulados');
     $('completoBody').innerHTML = tablaHTML(filtrados, 'completo');
+
+    const pendientesFaltante = pedidos.filter(p => p.faltantePendienteConfirmar && !p.faltanteConfirmadoHierros).length;
+    if(pendientesFaltante > 0){
+      document.title = '(' + pendientesFaltante + ') Faltantes por confirmar · Control Hierros';
+    } else {
+      document.title = 'Control pedidos · Los del hierros';
+    }
   }
 
   function abrirIncidencia(id){
@@ -887,7 +664,7 @@
 
     seleccionados.forEach(p => {
       const esBorrable = p.estado === 'entregado' || p.estado === 'anulado';
-      const tieneIncidenciaAbierta = !!(p.incidenciaHierros && !p.incidenciaHierrosResuelta);
+      const tieneIncidenciaAbierta = !!(p.incidenciaHierros && !p.incidenciaHierrosResuelta) || !!(p.faltantePendienteConfirmar && !p.faltanteConfirmadoHierros);
 
       if(!esBorrable){
         bloqueadosEstado.push(p);
@@ -912,20 +689,27 @@
     alert(`Borrados de tu vista: ${permitidos.length}\nNo borrados por incidencia sin resolver: ${bloqueadosIncidencia.length}\nNo borrados por estado no borrable: ${bloqueadosEstado.length}`);
   }
 
-  function abrirKpi(sectionKey, filterValue){
-    // Los recuadros superiores solo navegan a la sección correspondiente.
-    // No cambian filtros ni recalculan la pantalla, para evitar que al pulsar
-    // un KPI con valor 0 parezca que desaparecen pedidos o se mezclan secciones.
-    const destino = sectionKey || 'completo';
-    colapsarSecciones();
-    abrirSeccion(destino);
-    const panel = document.querySelector(`.panel.collapsible[data-section="${destino}"]`);
-    if(panel) panel.scrollIntoView({behavior:'smooth', block:'start'});
+  function confirmarFaltante(id){
+    const pedido = pedidos.find(p => p.id === id);
+    if(!pedido) return;
+    if(!confirm('¿Confirmas que el faltante de este pedido se ha recibido correctamente en Los del hierros?')) return;
+    setControlItem(id, {
+      faltanteConfirmadoHierros: true,
+      fechaConfirmacionFaltanteHierros: new Date().toLocaleString('es-ES'),
+      confirmadoEntregaHierros: true,
+      fechaConfirmacionHierros: new Date().toLocaleString('es-ES')
+    });
+    recomponerPedidos();
+  }
+
+  function verFaltanteControl(id){
+    const pedido = pedidos.find(p => p.id === id);
+    if(!pedido) return;
+    const texto = pedido.comentarioParcial || pedido.faltanteTexto || pedido.faltanteEntregadoTexto || 'Sin detalle de faltante.';
+    alert('Faltante del pedido ' + (pedido.ref || '') + ':\n\n' + texto);
   }
 
   document.addEventListener('click', function(e){
-    const kpi = e.target.closest('button[data-kpi-section]');
-    if(kpi){ abrirKpi(kpi.dataset.kpiSection, kpi.dataset.kpiFilter); return; }
     const selVis = e.target.closest('button[data-accion="seleccionarVisibles"]');
     if(selVis){ seleccionarVisibles(selVis.dataset.section); return; }
 
@@ -950,18 +734,12 @@
       tmat.textContent = expanded ? 'Ver material completo' : 'Ocultar material';
       return;
     }
-    const tpar = e.target.closest('[data-accion="toggleParcial"]');
-    if(tpar){
-      const td = tpar.closest('td');
-      const box = td ? td.querySelector('[data-role="partialBox"]') : null;
-      if(box){
-        const abierto = box.classList.toggle('open');
-        tpar.textContent = abierto ? 'Ocultar faltante ▴' : 'Ver faltante ▾';
-      }
-      return;
-    }
+    const vf = e.target.closest('button[data-accion="verFaltanteControl"]');
+    if(vf){ verFaltanteControl(vf.dataset.id); return; }
     const inc = e.target.closest('button[data-accion="abrirIncidencia"]');
     if(inc){ abrirIncidencia(inc.dataset.id); return; }
+    const confF = e.target.closest('button[data-accion="confirmarFaltante"]');
+    if(confF){ confirmarFaltante(confF.dataset.id); return; }
     const conf = e.target.closest('button[data-accion="confirmarEntrega"]');
     if(conf){ confirmarEntrega(conf.dataset.id); return; }
     const bor = e.target.closest('button[data-accion="borrarControl"]');
@@ -1000,7 +778,6 @@
       unsubPedidos = db.collection('pedidos').where('sector','==',SECTOR).onSnapshot(snapshot => {
         pedidosRaw = [];
         snapshot.forEach(doc => pedidosRaw.push(doc));
-        guardarEspejoPedidos(pedidosRaw);
         recomponerPedidos();
         $('connectionBadge').textContent = pedidosRaw.length + ' pedidos recibidos';
       }, err => {
@@ -1008,16 +785,6 @@
         $('connectionBadge').textContent = 'Error conexión';
         $('systemHint').textContent = 'Error leyendo Firestore. Revisa que firebase-config.js esté en la misma carpeta y que la conexión tenga permisos.';
         $('systemHint').classList.add('error');
-      });
-
-      // Segundo lector de seguridad. No modifica nada: solo sirve para recuperar pedidos
-      // que Compras haya movido, reescrito o dejado sin sector después de venir de entrega parcial.
-      unsubPedidosGlobalControl = db.collection('pedidos').onSnapshot(snapshot => {
-        pedidosGlobalRaw = [];
-        snapshot.forEach(doc => pedidosGlobalRaw.push(doc));
-        recomponerPedidos();
-      }, err => {
-        console.warn('Aviso lector global Control:', err);
       });
     }catch(e){
       console.error(e);
