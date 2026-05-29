@@ -114,6 +114,46 @@
     .btn-ver-faltante{background:#fffbeb;border-color:#fbbf24;color:#92400e;font-weight:800;}
     .btn-confirmar-faltante{background:#eff6ff;border-color:#60a5fa;color:#1d4ed8;font-weight:800;}
 
+
+    /* VISUAL FIX FALTANTES */
+    .faltante-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:5px;
+      margin-top:4px;
+      font-size:10px;
+      padding:3px 8px;
+      border-radius:999px;
+      background:#eff6ff;
+      border:1px solid #60a5fa;
+      color:#1d4ed8;
+      font-weight:800;
+      white-space:nowrap;
+    }
+    .faltante-pill.warn{
+      background:#fffbeb;
+      border-color:#fbbf24;
+      color:#92400e;
+    }
+    .faltante-pill.alert{
+      background:#fef2f2;
+      border-color:#f87171;
+      color:#b91c1c;
+    }
+    .btn-ver-faltante{
+      background:#fffbeb !important;
+      border-color:#fbbf24 !important;
+      color:#92400e !important;
+      font-weight:800 !important;
+      cursor:pointer !important;
+    }
+    .btn-confirmar-faltante{
+      background:#eff6ff !important;
+      border-color:#60a5fa !important;
+      color:#1d4ed8 !important;
+      font-weight:800 !important;
+    }
+
   </style>
 
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
@@ -138,7 +178,7 @@
       <div class="kpi"><span class="label">Total sector</span><span class="value" id="kpiTotal">0</span></div>
       <div class="kpi pendiente"><span class="label">Pendientes</span><span class="value" id="kpiPendiente">0</span></div>
       <div class="kpi pedido"><span class="label">Pedidos</span><span class="value" id="kpiPedido">0</span></div>
-      <div class="kpi recibido"><span class="label">En taller</span><span class="value" id="kpiRecibido">0</span></div>
+      <div class="kpi recibido"><span class="label">Entregado parcial</span><span class="value" id="kpiRecibido">0</span></div>
       <div class="kpi entregado"><span class="label">Entregados</span><span class="value" id="kpiEntregado">0</span></div>
       <div class="kpi confirmar"><span class="label">Por confirmar</span><span class="value" id="kpiConfirmar">0</span></div>
       <div class="kpi anulado"><span class="label">Anulados</span><span class="value" id="kpiAnulado">0</span></div>
@@ -160,7 +200,7 @@
           <option value="activos">Activos</option>
           <option value="pendiente">Pendiente</option>
           <option value="pedido">Pedido</option>
-          <option value="recibido">En taller</option>
+          <option value="recibido">Entregado parcial</option>
           <option value="por_confirmar">Entregas por confirmar</option>
           <option value="entregado_confirmado">Entregados confirmados</option>
           <option value="anulado">Anulado</option>
@@ -255,7 +295,7 @@
     return 'pendiente';
   }
   function estadoTexto(e){
-    return {pendiente:'Pendiente',pedido:'Pedido',recibido:'En taller',entregado:'Entregado',anulado:'Anulado'}[e] || 'Pendiente';
+    return {pendiente:'Pendiente',pedido:'Pedido',recibido:'Entregado parcial',entregado:'Entregado',anulado:'Anulado'}[e] || 'Pendiente';
   }
   function estadoClase(e){
     return 'estado-' + (e || 'pendiente');
@@ -341,7 +381,7 @@
     }
     if(p.comentarioParcial || p.faltanteTexto){
       if(p.pedidoFaltante) return '<span class="faltante-pill">Pedido faltante</span>';
-      if(p.estado === 'recibido') return '<span class="faltante-pill">Entregado parcial</span>';
+      return '<span class="faltante-pill warn">Entregado parcial</span>';
     }
     return pillEstado(p.estado);
   }
@@ -533,7 +573,7 @@
     const total = filtrados.length;
     const pendiente = filtrados.filter(p=>p.estado==='pendiente').length;
     const pedido = filtrados.filter(p=>p.estado==='pedido').length;
-    const recibido = filtrados.filter(p=>p.estado==='recibido' || p.comentarioParcial || p.pedidoFaltante).length;
+    const recibido = filtrados.filter(p=>p.estado==='recibido' || p.comentarioParcial || p.faltanteTexto || p.pedidoFaltante).length;
     const entregado = filtrados.filter(p=>p.estado==='entregado').length;
     const confirmar = filtrados.filter(p=>(p.faltantePendienteConfirmar && !p.faltanteConfirmadoHierros) || (p.estado==='entregado' && !p.confirmadoEntregaHierros)).length;
     const anulado = filtrados.filter(p=>p.estado==='anulado').length;
