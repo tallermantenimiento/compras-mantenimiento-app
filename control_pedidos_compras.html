@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Control pedidos · Los del hierros · FIX9 botones sin filtros</title>
+  <title>Control pedidos · Los del hierros · incidencias visibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="./sklum_icon.ico" type="image/x-icon">
   <link rel="shortcut icon" href="./sklum_icon.ico" type="image/x-icon">
@@ -26,7 +26,7 @@
     .panel h2{font-size:14px;font-weight:800;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;}
     .badge{font-size:11px;padding:2px 8px;border-radius:999px;background:var(--accent-soft);color:var(--muted);}
     .badge.alert{background:#fee2e2;color:#b91c1c;}
-    .top-grid{display:grid;grid-template-columns:repeat(6,minmax(120px,1fr));gap:10px;}
+    .top-grid{display:grid;grid-template-columns:repeat(7,minmax(120px,1fr));gap:10px;}
     .kpi{background:#f9fafb;border:1px solid var(--border);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:4px;text-align:left;color:inherit;}
     button.kpi{cursor:pointer;}
     button.kpi:hover{background:#eef2ff;border-color:#93c5fd;box-shadow:0 4px 12px rgba(37,99,235,.12);transform:translateY(-1px);}
@@ -39,6 +39,7 @@
     .kpi.entregado .value{color:var(--ok);}
     .kpi.confirmar .value{color:#b45309;}
     .kpi.anulado .value{color:var(--danger);}
+    .kpi.incidencias .value{color:#9a3412;}
     .hint{font-size:11px;color:var(--muted);margin-top:8px;}
     .hint.error{color:#b91c1c;font-weight:700;}
     .row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;}
@@ -138,6 +139,7 @@
       <button type="button" class="kpi recibido" data-kpi-section="activos" data-kpi-filter="recibido" title="Abrir pedidos activos"><span class="label">Entregado parcial</span><span class="value" id="kpiRecibido">0</span></button>
       <button type="button" class="kpi entregado" data-kpi-section="entregados" data-kpi-filter="entregado_confirmado" title="Abrir entregados confirmados"><span class="label">Entregados</span><span class="value" id="kpiEntregado">0</span></button>
       <button type="button" class="kpi confirmar" data-kpi-section="confirmar" data-kpi-filter="por_confirmar" title="Abrir entregas por confirmar"><span class="label">Por confirmar</span><span class="value" id="kpiConfirmar">0</span></button>
+      <button type="button" class="kpi incidencias" data-kpi-section="incidencias" data-kpi-filter="incidencias" title="Abrir incidencias abiertas"><span class="label">Incidencias</span><span class="value" id="kpiIncidencias">0</span></button>
       <button type="button" class="kpi anulado" data-kpi-section="anulados" data-kpi-filter="anulado" title="Abrir anulados"><span class="label">Anulados</span><span class="value" id="kpiAnulado">0</span></button>
     </div>
     <div class="hint" id="systemHint">Este programa lee los pedidos reales de Compras del sector los-del-hierros. Incluye blindaje interno para entregas parciales convertidas a entregado. Tus confirmaciones, incidencias y borrados de vista son solo internos de este ordenador.</div>
@@ -160,6 +162,7 @@
           <option value="recibido">Entregado parcial</option>
           <option value="por_confirmar">Entregas por confirmar</option>
           <option value="entregado_confirmado">Entregados confirmados</option>
+          <option value="incidencias">Incidencias abiertas</option>
           <option value="anulado">Anulado</option>
         </select>
       </div>
@@ -182,6 +185,11 @@
   <section class="panel collapsible collapsed" data-section="confirmar">
     <h2 class="panel-title-toggle"><span class="title-left"><span class="collapse-chevron">▼</span>Entregas por confirmar <span class="badge alert" id="badgeConfirmar">0</span></span></h2>
     <div class="panel-body" id="confirmarBody"></div>
+  </section>
+
+  <section class="panel collapsible collapsed" data-section="incidencias">
+    <h2 class="panel-title-toggle"><span class="title-left"><span class="collapse-chevron">▼</span>Incidencias abiertas <span class="badge alert" id="badgeIncidencias">0</span></span></h2>
+    <div class="panel-body" id="incidenciasBody"></div>
   </section>
 
   <section class="panel collapsible collapsed" data-section="entregados">
@@ -626,7 +634,11 @@
     return '';
   }
   function permiteIncidencia(p){
-    return p.estado !== 'anulado' && (p.estado !== 'entregado' || !p.confirmadoEntregaHierros);
+    if(!p || p.estado === 'anulado') return false;
+    // Si el pedido ya está confirmado pero conserva una incidencia abierta,
+    // debe seguir permitiendo verla y resolverla desde Control.
+    if(incidenciaActiva(p)) return true;
+    return p.estado !== 'entregado' || !p.confirmadoEntregaHierros;
   }
   function incidenciaBotonHtml(p){
     if(!permiteIncidencia(p)) return '';
@@ -755,6 +767,7 @@
     abrirSeccion('completo');
     if(filtrados.some(p => ['pendiente','pedido','recibido'].includes(p.estado))) abrirSeccion('activos');
     if(filtrados.some(p => (p.faltantePendienteConfirmar && !p.faltanteConfirmadoHierros) || (p.estado === 'entregado' && !p.confirmadoEntregaHierros))) abrirSeccion('confirmar');
+    if(filtrados.some(p => incidenciaActiva(p))) abrirSeccion('incidencias');
     if(filtrados.some(p => p.estado === 'entregado' && p.confirmadoEntregaHierros)) abrirSeccion('entregados');
     if(filtrados.some(p => p.estado === 'anulado')) abrirSeccion('anulados');
   }
@@ -778,6 +791,7 @@
       else if(est === 'activos') eOk = ['pendiente','pedido','recibido'].includes(p.estado);
       else if(est === 'por_confirmar') eOk = (p.faltantePendienteConfirmar && !p.faltanteConfirmadoHierros) || (p.estado === 'entregado' && !p.confirmadoEntregaHierros);
       else if(est === 'entregado_confirmado') eOk = p.estado === 'entregado' && p.confirmadoEntregaHierros;
+      else if(est === 'incidencias') eOk = incidenciaActiva(p);
       else eOk = p.estado === est;
       const empOk = emp === 'todas' || txt(p.empresa) === emp;
       return qOk && eOk && empOk;
@@ -824,18 +838,21 @@
     const recibido = filtrados.filter(p=>p.estado==='recibido' || (p.estado==='pedido' && (p.pedidoFaltante || p.materialFaltante))).length;
     const entregado = filtrados.filter(p=>p.estado==='entregado').length;
     const confirmar = filtrados.filter(p=>(p.faltantePendienteConfirmar && !p.faltanteConfirmadoHierros) || (p.estado==='entregado' && !p.confirmadoEntregaHierros)).length;
+    const incidencias = filtrados.filter(p=>incidenciaActiva(p)).length;
     const anulado = filtrados.filter(p=>p.estado==='anulado').length;
     $('kpiTotal').textContent = total;
     $('kpiPendiente').textContent = pendiente;
     $('kpiRecibido').textContent = recibido;
     $('kpiEntregado').textContent = entregado;
     $('kpiConfirmar').textContent = confirmar;
+    $('kpiIncidencias').textContent = incidencias;
     $('kpiAnulado').textContent = anulado;
   }
   function renderTodo(){
     renderKpis();
     const activos = filtrados.filter(p => ['pendiente','pedido','recibido'].includes(p.estado));
     const confirmar = filtrados.filter(p => (p.faltantePendienteConfirmar && !p.faltanteConfirmadoHierros) || (p.estado === 'entregado' && !p.confirmadoEntregaHierros));
+    const incidencias = filtrados.filter(p => incidenciaActiva(p));
     const entregados = filtrados.filter(p => p.estado === 'entregado' && p.confirmadoEntregaHierros && (!p.faltantePendienteConfirmar || p.faltanteConfirmadoHierros));
     const anulados = filtrados.filter(p => p.estado === 'anulado');
 
@@ -844,19 +861,23 @@
 
     $('badgeActivos').textContent = activos.length;
     actualizarBadgeSeccion('badgeConfirmar', confirmar.length, confirmarConFaltante, 'con faltante');
+    actualizarBadgeSeccion('badgeIncidencias', incidencias.length, incidencias.length, 'abierta' + (incidencias.length === 1 ? '' : 's'));
     $('badgeEntregados').textContent = entregados.length;
     actualizarBadgeSeccion('badgeAnulados', anulados.length, anuladosAlertables, 'anulado');
     $('badgeCompleto').textContent = filtrados.length;
 
     $('activosBody').innerHTML = tablaHTML(activos, 'activos');
     $('confirmarBody').innerHTML = tablaHTML(confirmar, 'confirmar');
+    $('incidenciasBody').innerHTML = tablaHTML(incidencias, 'incidencias');
     $('entregadosBody').innerHTML = tablaHTML(entregados, 'entregados');
     $('anuladosBody').innerHTML = tablaHTML(anulados, 'anulados');
     $('completoBody').innerHTML = tablaHTML(filtrados, 'completo');
 
     const faltantesPendientes = pedidos.filter(p => p.faltantePendienteConfirmar && !p.faltanteConfirmadoHierros).length;
-    if(faltantesPendientes > 0){
-      document.title = '(' + faltantesPendientes + ') Faltantes por confirmar · Control pedidos';
+    const incidenciasAbiertas = pedidos.filter(p => incidenciaActiva(p)).length;
+    const alertasTitulo = faltantesPendientes + incidenciasAbiertas;
+    if(alertasTitulo > 0){
+      document.title = '(' + alertasTitulo + ') Alertas · Control pedidos';
     } else {
       document.title = 'Control pedidos · Los del hierros';
     }
